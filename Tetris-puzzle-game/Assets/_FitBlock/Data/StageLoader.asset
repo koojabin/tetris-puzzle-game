@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04f000b5e6cbd044d9694fda68c3c97a, type: 3}
+  m_Name: StageLoader
+  m_EditorClassIdentifier: FitBlock.Core::StageLoader
+  stages:
+  - {fileID: 11400000, guid: b2dbf314283f1184d96b6898be142bde, type: 2}
+  - {fileID: 11400000, guid: 550fda73a42c6e340a889f498c61510f, type: 2}
