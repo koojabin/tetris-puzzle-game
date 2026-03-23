@@ -213,39 +213,73 @@ public class StageEditorWindow : EditorWindow
 
         EditorGUILayout.Space(3);
 
-        // 각 조각을 체크박스로 표시
-        for (int i = 0; i < _allPieces.Length; i++)
+        // 크기별 그룹 만들기
+        var groups = new Dictionary<int, List<PieceData>>();
+        foreach (var piece in _allPieces)
         {
-            var piece = _allPieces[i];
-            bool isAllowed = allowedSet.Contains(piece);
+            int size = piece.GetNormalizedCells().Count;
+            if (!groups.ContainsKey(size)) groups[size] = new List<PieceData>();
+            groups[size].Add(piece);
+        }
 
+        var sortedSizes = new List<int>(groups.Keys);
+        sortedSizes.Sort();
+
+        foreach (int size in sortedSizes)
+        {
+            var piecesInGroup = groups[size];
+
+            // 그룹 헤더 + 모두 체크/해제 버튼
             EditorGUILayout.BeginHorizontal();
-
-            bool newAllowed = EditorGUILayout.Toggle(isAllowed, GUILayout.Width(20));
-
-            // 조각 색상 미리보기
-            var colorRect = GUILayoutUtility.GetRect(16, 16, GUILayout.Width(16));
-            EditorGUI.DrawRect(colorRect, piece.pieceColor);
-
-            EditorGUILayout.LabelField($"{piece.pieceName} ({piece.GetNormalizedCells().Count}칸)", GUILayout.Width(150));
-
-            // 조각 모양 미니 프리뷰
-            DrawMiniPiecePreview(piece);
-
-            if (GUILayout.Button("편집", GUILayout.Width(40)))
-                PieceEditorWindow.OpenWithPiece(piece);
-
-            EditorGUILayout.EndHorizontal();
-
-            if (newAllowed != isAllowed)
+            EditorGUILayout.LabelField($"── {size}칸 조각 ──", EditorStyles.boldLabel, GUILayout.Width(100));
+            if (GUILayout.Button("모두 체크", GUILayout.Width(70)))
             {
-                if (newAllowed)
-                    _stage.allowedPieces.Add(piece);
-                else
-                    _stage.allowedPieces.Remove(piece);
+                foreach (var p in piecesInGroup)
+                    if (!allowedSet.Contains(p)) { _stage.allowedPieces.Add(p); allowedSet.Add(p); }
                 _stage.isValidated = false;
                 EditorUtility.SetDirty(_stage);
             }
+            if (GUILayout.Button("모두 해제", GUILayout.Width(70)))
+            {
+                foreach (var p in piecesInGroup)
+                    if (allowedSet.Contains(p)) { _stage.allowedPieces.Remove(p); allowedSet.Remove(p); }
+                _stage.isValidated = false;
+                EditorUtility.SetDirty(_stage);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            // 그룹 내 개별 조각
+            foreach (var piece in piecesInGroup)
+            {
+                bool isAllowed = allowedSet.Contains(piece);
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Space(10);
+
+                bool newAllowed = EditorGUILayout.Toggle(isAllowed, GUILayout.Width(20));
+
+                var colorRect = GUILayoutUtility.GetRect(16, 16, GUILayout.Width(16));
+                EditorGUI.DrawRect(colorRect, piece.pieceColor);
+
+                EditorGUILayout.LabelField($"{piece.pieceName}", GUILayout.Width(130));
+
+                DrawMiniPiecePreview(piece);
+
+                if (GUILayout.Button("편집", GUILayout.Width(40)))
+                    PieceEditorWindow.OpenWithPiece(piece);
+
+                EditorGUILayout.EndHorizontal();
+
+                if (newAllowed != isAllowed)
+                {
+                    if (newAllowed) { _stage.allowedPieces.Add(piece); allowedSet.Add(piece); }
+                    else { _stage.allowedPieces.Remove(piece); allowedSet.Remove(piece); }
+                    _stage.isValidated = false;
+                    EditorUtility.SetDirty(_stage);
+                }
+            }
+
+            EditorGUILayout.Space(3);
         }
 
         EditorGUILayout.Space(3);

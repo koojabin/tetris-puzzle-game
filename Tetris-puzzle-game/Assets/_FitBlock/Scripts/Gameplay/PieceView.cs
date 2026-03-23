@@ -32,10 +32,6 @@ public class PieceView : MonoBehaviour,
     private Vector2Int _previousGridPos;
     private Vector3 _previousWorldPos;
 
-    // 길게 탭 감지 (반전용)
-    private float _touchStartTime;
-    private bool _longPressTriggered;
-    private const float LONG_PRESS_TIME = 0.4f;
 
     private List<SpriteRenderer> _cellRenderers = new List<SpriteRenderer>();
     private Sprite _squareSprite;
@@ -92,8 +88,6 @@ public class PieceView : MonoBehaviour,
         _isDragging = true;
         AnyPieceDragging = true;
         IsInTray = false;
-        _touchStartTime = Time.time;
-        _longPressTriggered = false;
         SetSortingOrder(10);
 
         // 트레이 축소 → 원래 크기로 복원
@@ -113,13 +107,6 @@ public class PieceView : MonoBehaviour,
     public void OnDrag(PointerEventData eventData)
     {
         if (!_isDragging) return;
-
-        // 길게 탭 → 반전
-        if (!_longPressTriggered && Time.time - _touchStartTime >= LONG_PRESS_TIME)
-        {
-            Flip();
-            _longPressTriggered = true;
-        }
 
         transform.position = ScreenToWorld(eventData.position) + Vector3.up * DRAG_LIFT;
         StageManager.Instance.UpdateDragHighlight(this);

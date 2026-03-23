@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8be443eabf4e714996da2a62a40255f, type: 3}
-  m_Name: Stage_03
+  m_Name: Stage_05
   m_EditorClassIdentifier: FitBlock.Core::StageData
-  stageNumber: 3
+  stageNumber: 5
   boardWidth: 4
   boardHeight: 4
   boardCells: 01010101010101010101010101010101
@@ -29,4 +29,4 @@ MonoBehaviour:
   pieces: []
   allowFlip: 1
   isValidated: 1
-  solutionCount: 8
+  solutionCount: 7

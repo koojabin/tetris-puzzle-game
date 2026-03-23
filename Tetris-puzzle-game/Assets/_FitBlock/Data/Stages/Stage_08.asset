@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8be443eabf4e714996da2a62a40255f, type: 3}
+  m_Name: Stage_08
+  m_EditorClassIdentifier: FitBlock.Core::StageData
+  stageNumber: 8
+  boardWidth: 4
+  boardHeight: 4
+  boardCells: 01010101010101010101010101010101
+  allowedPieces:
+  - {fileID: 11400000, guid: deb024da790a84642b81c405baef173e, type: 2}
+  - {fileID: 11400000, guid: bf7a2af521f0b1a4bb1de67a0415c7fd, type: 2}
+  - {fileID: 11400000, guid: fdb64f3c753a0c5459817c28a134d5fd, type: 2}
+  - {fileID: 11400000, guid: 4c6545a0ddc12ea4a8d5f423e237870a, type: 2}
+  - {fileID: 11400000, guid: ca674bb99f9a98148b0971cccd3fa78f, type: 2}
+  - {fileID: 11400000, guid: 47eead547440820458f0866d64f7c3bd, type: 2}
+  - {fileID: 11400000, guid: 18fa93c1aabec5c4580bc558386880b3, type: 2}
+  - {fileID: 11400000, guid: 182253bebbfd92f49836c1efa9930224, type: 2}
+  - {fileID: 11400000, guid: 008f8fd890022824d9217888a27bd22b, type: 2}
+  - {fileID: 11400000, guid: ee1816ac8a2874e4f85bbc840e530c9a, type: 2}
+  pieceCount: 4
+  pieces: []
+  allowFlip: 1
+  isValidated: 1
+  solutionCount: 14

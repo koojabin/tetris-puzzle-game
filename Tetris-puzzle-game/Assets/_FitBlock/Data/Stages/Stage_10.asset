@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8be443eabf4e714996da2a62a40255f, type: 3}
-  m_Name: Stage_02
+  m_Name: Stage_10
   m_EditorClassIdentifier: FitBlock.Core::StageData
-  stageNumber: 2
-  boardWidth: 6
-  boardHeight: 5
-  boardCells: 000000000000000000000000010101000000010101000000010101000000
+  stageNumber: 10
+  boardWidth: 4
+  boardHeight: 4
+  boardCells: 01010101010101010101010101010101
   allowedPieces:
   - {fileID: 11400000, guid: bd12bda956fbda947a470db7b26bdbef, type: 2}
   - {fileID: 11400000, guid: 8ff36cb71131e784e9a1b31b80727209, type: 2}
@@ -23,17 +23,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d51b14cb47a08354086767d1f75a4293, type: 2}
   - {fileID: 11400000, guid: b7ef55fa8a809094c91ea50b20fd2dcb, type: 2}
   - {fileID: 11400000, guid: 70af98223eb888a42b3fd5f0bd379603, type: 2}
+  - {fileID: 11400000, guid: d15ff664086b9b143a334fc15fc7898b, type: 2}
   - {fileID: 11400000, guid: 12e10e0bc7ef8fe4098a9afb3f491b73, type: 2}
   - {fileID: 11400000, guid: bf7a2af521f0b1a4bb1de67a0415c7fd, type: 2}
   - {fileID: 11400000, guid: deb024da790a84642b81c405baef173e, type: 2}
-  - {fileID: 11400000, guid: e2caa0c6e3c0fb24e9a2057ea41df6df, type: 2}
-  pieceCount: 3
-  pieces:
-  - {fileID: 11400000, guid: e2caa0c6e3c0fb24e9a2057ea41df6df, type: 2}
-  - {fileID: 11400000, guid: 70af98223eb888a42b3fd5f0bd379603, type: 2}
-  - {fileID: 11400000, guid: d15ff664086b9b143a334fc15fc7898b, type: 2}
-  - {fileID: 11400000, guid: 82b6b5f76f03a4145a54741f7e1b6a4d, type: 2}
-  - {fileID: 11400000, guid: ee1816ac8a2874e4f85bbc840e530c9a, type: 2}
-  allowFlip: 0
+  pieceCount: 5
+  pieces: []
+  allowFlip: 1
   isValidated: 1
-  solutionCount: 24
+  solutionCount: 38
