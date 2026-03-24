@@ -17,6 +17,9 @@ public class PieceView : MonoBehaviour,
     public bool IsInTray { get; private set; } = true;
     public Vector2Int GridPosition { get; private set; }
 
+    /// <summary>런타임에 배정된 보석 스프라이트 (null이면 Data.pieceSprite 또는 색상 사용)</summary>
+    public Sprite AssignedSprite { get; private set; }
+
     /// <summary>현재 드래그 중인 조각이 있는지 (트레이 스크롤과 충돌 방지)</summary>
     public static bool AnyPieceDragging { get; private set; }
 
@@ -39,10 +42,11 @@ public class PieceView : MonoBehaviour,
 
     private const float DRAG_LIFT = 1.2f;
 
-    public void Init(PieceData data, int pieceId, Vector3 trayPosition)
+    public void Init(PieceData data, int pieceId, Vector3 trayPosition, Sprite assignedSprite = null)
     {
         Data = data;
         PieceId = pieceId;
+        AssignedSprite = assignedSprite;
         _trayPosition = trayPosition;
         transform.position = trayPosition;
         _rotation = 0;
@@ -73,6 +77,7 @@ public class PieceView : MonoBehaviour,
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        Debug.Log($"[FitBlock] OnPointerDown: {Data.pieceName} (id={PieceId}) assigned={(AssignedSprite != null ? AssignedSprite.name : "NULL")}");
         // 드래그 시작 전 상태 저장
         _wasPreviouslyPlaced = IsPlaced;
         _previousWorldPos = transform.position;
@@ -238,6 +243,8 @@ public class PieceView : MonoBehaviour,
 
     private void RebuildCellObjects()
     {
+        Debug.Log($"[FitBlock] RebuildCellObjects: {Data.pieceName} (id={PieceId}) assigned={(AssignedSprite != null ? AssignedSprite.name : "NULL")}");
+
         foreach (var sr in _cellRenderers)
             if (sr) Destroy(sr.gameObject);
         _cellRenderers.Clear();
@@ -256,10 +263,22 @@ public class PieceView : MonoBehaviour,
             cellObj.transform.localPosition = new Vector3(c.x * cs, c.y * cs, 0f);
 
             var sr = cellObj.AddComponent<SpriteRenderer>();
-            sr.sprite = _squareSprite;
-            sr.color = Data.pieceColor;
+            if (AssignedSprite != null)
+            {
+                sr.sprite = AssignedSprite;
+                sr.color = Color.white;
+                sr.drawMode = SpriteDrawMode.Simple;
+                float spriteSize = cs - gap;
+                float scale = spriteSize / (sr.sprite.rect.width / sr.sprite.pixelsPerUnit);
+                cellObj.transform.localScale = Vector3.one * scale;
+            }
+            else
+            {
+                sr.sprite = _squareSprite;
+                sr.color = Data.pieceColor;
+                sr.size = Vector2.one * (cs - gap);
+            }
             sr.sortingOrder = 5;
-            sr.size = Vector2.one * (cs - gap);
             sr.maskInteraction = _maskInteraction;
             _cellRenderers.Add(sr);
         }

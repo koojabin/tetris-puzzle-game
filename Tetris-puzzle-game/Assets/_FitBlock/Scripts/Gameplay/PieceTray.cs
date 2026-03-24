@@ -70,8 +70,13 @@ public class PieceTray : MonoBehaviour
         EnhancedTouchSupport.Enable();
     }
 
-    public void Init(StageData stage)
+    public void Init(StageData stage, Sprite[] gemSprites = null)
     {
+        Debug.Log($"[FitBlock] PieceTray.Init: gemSprites={(gemSprites != null ? gemSprites.Length.ToString() : "NULL")}, pieces={stage.pieces.Count}");
+        if (gemSprites != null)
+            for (int d = 0; d < gemSprites.Length; d++)
+                Debug.Log($"[FitBlock]   gemSprites[{d}]={(gemSprites[d] != null ? gemSprites[d].name : "NULL")}");
+
         ClearTray();
         _scrollOffset = 0f;
 
@@ -79,71 +84,60 @@ public class PieceTray : MonoBehaviour
         CreateTrayBackground();
         CreateTrayMask();
 
-        // ── 1. 같은 종류끼리 그룹화 ──
-        var groupMap = new Dictionary<string, List<PieceData>>();
-        var groupOrder = new List<string>();
-
+        // ── 1. 셀 수 기준 정렬 (적은 것부터) ──
+        var sortedPieces = new List<PieceData>();
         foreach (var pieceData in stage.pieces)
+            if (pieceData != null) sortedPieces.Add(pieceData);
+
+        sortedPieces.Sort((a, b) =>
+            a.GetNormalizedCells().Count.CompareTo(b.GetNormalizedCells().Count));
+
+        // ── 1.5. 보석 스프라이트 랜덤 배정 ──
+        Sprite[] assignedSprites = new Sprite[sortedPieces.Count];
+        if (gemSprites != null && gemSprites.Length > 0)
         {
-            if (pieceData == null) continue;
-            string key = pieceData.pieceName;
-            if (!groupMap.ContainsKey(key))
+            // 셔플된 인덱스로 배정 (겹쳐도 OK, 최대한 다양하게)
+            var indices = new List<int>();
+            for (int j = 0; j < gemSprites.Length; j++) indices.Add(j);
+            // Fisher-Yates 셔플
+            for (int j = indices.Count - 1; j > 0; j--)
             {
-                groupMap[key] = new List<PieceData>();
-                groupOrder.Add(key);
+                int r = Random.Range(0, j + 1);
+                (indices[j], indices[r]) = (indices[r], indices[j]);
             }
-            groupMap[key].Add(pieceData);
+            for (int j = 0; j < sortedPieces.Count; j++)
+                assignedSprites[j] = gemSprites[indices[j % indices.Count]];
         }
 
-        // ── 1.5. 셀 수 기준 정렬 (적은 것부터) ──
-        groupOrder.Sort((a, b) =>
-        {
-            int cellsA = groupMap[a][0].GetNormalizedCells().Count;
-            int cellsB = groupMap[b][0].GetNormalizedCells().Count;
-            return cellsA.CompareTo(cellsB);
-        });
-
-        // ── 2. 그룹별 슬롯 위치 (위에서 아래로) ──
-        int groupCount = groupOrder.Count;
-        _contentHeight = (groupCount - 1) * spacing;
+        // ── 2. 각 조각 개별 슬롯 배치 ──
+        _contentHeight = (sortedPieces.Count - 1) * spacing;
         float startY = _trayMaxY - spacing;
 
         int pieceId = 1;
-        for (int g = 0; g < groupOrder.Count; g++)
+        for (int i = 0; i < sortedPieces.Count; i++)
         {
-            string key = groupOrder[g];
-            var pieceDatas = groupMap[key];
+            var pieceData = sortedPieces[i];
 
             var group = new PieceGroup();
-            group.pieceName = key;
-            group.data = pieceDatas[0];
-            group.slotY = startY - g * spacing;
+            group.pieceName = pieceData.pieceName;
+            group.data = pieceData;
+            group.slotY = startY - i * spacing;
 
             Vector3 slotPos = new Vector3(_trayCenterX, group.slotY, 0f);
 
-            for (int i = 0; i < pieceDatas.Count; i++)
-            {
-                var go = new GameObject($"Piece_{pieceId}_{pieceDatas[i].pieceName}");
-                go.transform.SetParent(transform, false);
-                go.AddComponent<BoxCollider2D>();
+            var go = new GameObject($"Piece_{pieceId}_{pieceData.pieceName}");
+            go.transform.SetParent(transform, false);
+            go.AddComponent<BoxCollider2D>();
 
-                var pieceView = go.AddComponent<PieceView>();
-                pieceView.Init(pieceDatas[i], pieceId, slotPos);
-                go.transform.localScale = Vector3.one * trayPieceScale;
+            var pieceView = go.AddComponent<PieceView>();
+            pieceView.Init(pieceData, pieceId, slotPos, assignedSprites[i]);
+            go.transform.localScale = Vector3.one * trayPieceScale;
 
-                // 트레이 안에서는 마스크 내부만 보이도록
-                SetPieceMaskInteraction(pieceView, SpriteMaskInteraction.VisibleInsideMask);
+            SetPieceMaskInteraction(pieceView, SpriteMaskInteraction.VisibleInsideMask);
 
-                group.pieces.Add(pieceView);
-                _allPieces.Add(pieceView);
-                pieceId++;
-
-                if (i > 0)
-                    go.SetActive(false);
-            }
-
-            if (pieceDatas.Count > 1)
-                CreateCountBadge(group, slotPos);
+            group.pieces.Add(pieceView);
+            _allPieces.Add(pieceView);
+            pieceId++;
 
             _groups.Add(group);
         }

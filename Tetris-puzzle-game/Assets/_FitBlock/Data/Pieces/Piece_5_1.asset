@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Piece_5_1
   m_EditorClassIdentifier: FitBlock.Core::PieceData
   pieceName: Piece_5_1
-  pieceColor: {r: 0, g: 0, b: 1, a: 1}
+  pieceColor: {r: 1, g: 0.85, b: 0.1, a: 1}
   gridSize: 4
   cells: 01010100000001010000000000000000

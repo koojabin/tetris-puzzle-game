@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>FIT BLOCK 개발 진행 상황</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #222;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 22pt;
+            text-align: center;
+            margin-bottom: 6px;
+            color: #1a1a2e;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 10pt;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #1a1a2e;
+        }
+        h2 {
+            font-size: 14pt;
+            color: #1a1a2e;
+            margin-top: 24px;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #ddd;
+        }
+        h3 {
+            font-size: 12pt;
+            color: #333;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            font-size: 10pt;
+        }
+        th {
+            background-color: #1a1a2e;
+            color: #fff;
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f8fa;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 9pt;
+            font-weight: 600;
+            color: #fff;
+        }
+        .badge-done {
+            background-color: #2ecc71;
+        }
+        .badge-high {
+            background-color: #e74c3c;
+        }
+        .badge-mid {
+            background-color: #f39c12;
+        }
+        .badge-low {
+            background-color: #3498db;
+        }
+        .overview-box {
+            background: #f4f6fb;
+            border-left: 4px solid #1a1a2e;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            border-radius: 0 6px 6px 0;
+        }
+        .overview-box p {
+            margin-bottom: 4px;
+        }
+        .overview-box strong {
+            color: #1a1a2e;
+        }
+        .tech-list {
+            list-style: none;
+            padding: 0;
+        }
+        .tech-list li {
+            padding: 4px 0 4px 16px;
+            position: relative;
+        }
+        .tech-list li::before {
+            content: "\25B8";
+            position: absolute;
+            left: 0;
+            color: #1a1a2e;
+        }
+        .stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            flex: 1;
+            text-align: center;
+            background: #f4f6fb;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .stat-card .num {
+            font-size: 20pt;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        .stat-card .label {
+            font-size: 9pt;
+            color: #666;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 12px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 9pt;
+            color: #999;
+        }
+        @media print {
+            body {
+                padding: 0;
+            }
+            h2 {
+                page-break-after: avoid;
+            }
+            table {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>FIT BLOCK</h1>
+    <div class="subtitle">개발 진행 상황 보고서 | 2026.03.20</div>
+
+    <h2>1. 프로젝트 개요</h2>
+    <div class="overview-box">
+        <p><strong>장르:</strong> 테트로미노 조각을 틀(보드)에 빈칸 없이 채우는 정적 퍼즐 게임</p>
+        <p><strong>플랫폼:</strong> Android 모바일</p>
+        <p><strong>엔진:</strong> Unity 2D URP</p>
+        <p><strong>현재 단계:</strong> Phase 1 프로토타입 — 핵심 기능 구현 완료</p>
+        <p><strong>목표:</strong> 캐주얼 퍼즐 게임, 광고 기반 수익 창출</p>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="num">18</div>
+            <div class="label">피스 데이터</div>
+        </div>
+        <div class="stat-card">
+            <div class="num">2</div>
+            <div class="label">스테이지</div>
+        </div>
+        <div class="stat-card">
+            <div class="num">16</div>
+            <div class="label">C# 스크립트</div>
+        </div>
+        <div class="stat-card">
+            <div class="num">2</div>
+            <div class="label">씬</div>
+        </div>
+    </div>
+
+    <h2>2. 구현 완료 항목</h2>
+
+    <h3>코어 로직</h3>
+    <table>
+        <tr><th style="width:40%">기능</th><th>설명</th><th style="width:60px">상태</th></tr>
+        <tr><td>GridSystem</td><td>보드 그리드 상태 관리, 배치/제거/검증/충돌 감지</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>PieceData</td><td>ScriptableObject 기반 조각 정의 (5x5, 회전/반전/정규화)</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>StageData / StageLoader</td><td>스테이지 설정 및 관리 (보드 크기, 활성 셀, 조각 목록)</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>SaveSystem</td><td>PlayerPrefs 기반 저장/로드 (별점, 최대 클리어 스테이지)</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>SceneLoader</td><td>TitleScene ↔ GameScene 전환</td><td><span class="badge badge-done">완료</span></td></tr>
+    </table>
+
+    <h3>게임플레이</h3>
+    <table>
+        <tr><th style="width:40%">기능</th><th>설명</th><th style="width:60px">상태</th></tr>
+        <tr><td>드래그 앤 드롭</td><td>조각 드래그 배치, 미리보기 (초록=유효, 빨강=무효)</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>회전 / 반전</td><td>버튼 회전 (90° 단위), 버튼 반전, 길게탭 반전</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>다단계 되돌리기</td><td>Stack 기반, 버튼으로만 동작, 연속 되돌리기 가능</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>별점 시스템</td><td>3=도움없음, 2=힌트사용, 1=광고도움</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>클리어 감지</td><td>모든 활성 셀 채움 시 자동 감지</td><td><span class="badge badge-done">완료</span></td></tr>
+    </table>
+
+    <h3>UI / UX</h3>
+    <table>
+        <tr><th style="width:40%">기능</th><th>설명</th><th style="width:60px">상태</th></tr>
+        <tr><td>HUD</td><td>스테이지 번호, 별 3개, 메뉴 버튼</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>PieceTray</td><td>오른쪽 세로 트레이, 스크롤, SpriteMask 클리핑</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>트레이 그룹화</td><td>동일 조각 그룹화 + 카운트 배지, 빈슬롯 자동 압축</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>클리어 팝업</td><td>별 애니메이션, 다음/재도전/선택 버튼</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>스테이지 선택</td><td>4열 그리드, 잠금/별 표시, 스크롤</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>설정 패널</td><td>BGM / SFX / 진동 토글 (PlayerPrefs 저장)</td><td><span class="badge badge-done">완료</span></td></tr>
+    </table>
+
+    <h3>에디터 도구</h3>
+    <table>
+        <tr><th style="width:40%">기능</th><th>설명</th><th style="width:60px">상태</th></tr>
+        <tr><td>PieceEditorWindow</td><td>시각적 조각 생성/편집, 회전 프리뷰</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>StageEditorWindow</td><td>보드 그리드 페인팅, 조각 배정</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>PuzzleSolver</td><td>백트래킹 풀이 검증 (최대 10해)</td><td><span class="badge badge-done">완료</span></td></tr>
+        <tr><td>SceneSetupTool</td><td>GameScene/TitleScene 자동 구성</td><td><span class="badge badge-done">완료</span></td></tr>
+    </table>
+
+    <h2>3. 남은 개발 항목</h2>
+
+    <h3>Phase 2 — 콘텐츠 & 핵심 기능 보완</h3>
+    <table>
+        <tr><th style="width:60px">우선순위</th><th style="width:30%">항목</th><th>설명</th></tr>
+        <tr><td><span class="badge badge-high">높음</span></td><td>스테이지 추가</td><td>현재 2개 → 최소 30~50개 필요. StageEditor + PuzzleSolver 활용</td></tr>
+        <tr><td><span class="badge badge-high">높음</span></td><td>힌트 기능 구현</td><td>버튼 존재, 로직 미구현. Solver 기반 정답 조각 하이라이트</td></tr>
+        <tr><td><span class="badge badge-high">높음</span></td><td>에셋 적용 (비주얼)</td><td>현재 기본 도형. Ludo.ai AI 생성 에셋 적용 예정 (배경, 조각, UI)</td></tr>
+        <tr><td><span class="badge badge-mid">중간</span></td><td>사운드 시스템</td><td>설정 토글 있으나 AudioManager 미구현. BGM/SFX 재생 필요</td></tr>
+        <tr><td><span class="badge badge-mid">중간</span></td><td>진동(햅틱) 피드백</td><td>설정 토글 있으나 실제 연동 없음</td></tr>
+        <tr><td><span class="badge badge-mid">중간</span></td><td>튜토리얼</td><td>첫 플레이어를 위한 조작 방법 안내</td></tr>
+        <tr><td><span class="badge badge-mid">중간</span></td><td>난이도 곡선 설계</td><td>스테이지별 보드 크기/조각 수 점진적 증가</td></tr>
+        <tr><td><span class="badge badge-low">낮음</span></td><td>애니메이션 보강</td><td>배치/클리어 연출, UI 전환 애니메이션</td></tr>
+    </table>
+
+    <h3>Phase 3 — 수익화 & 출시</h3>
+    <table>
+        <tr><th style="width:30%">항목</th><th>설명</th></tr>
+        <tr><td>AdMob 광고</td><td>보상형 광고 (힌트/되돌리기), 전면 광고 (클리어 후)</td></tr>
+        <tr><td>IAP (인앱 결제)</td><td>광고 제거, 힌트 팩 등</td></tr>
+        <tr><td>Android 빌드 & 최적화</td><td>모바일 성능 테스트, 메모리 최적화</td></tr>
+        <tr><td>Google Play 출시</td><td>스토어 등록, 스크린샷, 설명문 작성</td></tr>
+    </table>
+
+    <h2>4. 기술 스택</h2>
+    <ul class="tech-list">
+        <li><strong>Input System:</strong> New Input System (Mouse.current, EnhancedTouch) — UnityEngine.Input 사용 금지</li>
+        <li><strong>Assembly Definition:</strong> FitBlock.Core, FitBlock.Gameplay (Unity.InputSystem 참조)</li>
+        <li><strong>트레이 클리핑:</strong> SpriteMask 기반</li>
+        <li><strong>데이터 구조:</strong> ScriptableObject 기반 (피스 18종, 스테이지 2종)</li>
+        <li><strong>오브젝트 생성:</strong> 프리팹 미사용, 모든 UI/게임 오브젝트 런타임 동적 생성</li>
+        <li><strong>저장:</strong> PlayerPrefs (스테이지 별점, 설정값)</li>
+    </ul>
+
+    <div class="footer">
+        FIT BLOCK Development Report | Generated 2026.03.20
+    </div>
+
+</body>
+</html>

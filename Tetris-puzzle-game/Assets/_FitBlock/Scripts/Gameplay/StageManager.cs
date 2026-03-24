@@ -18,6 +18,9 @@ public class StageManager : MonoBehaviour
     [SerializeField] private StageData _stageData;
     [SerializeField] private StageLoader _stageLoader;
 
+    [Header("보석 블록 스프라이트 (랜덤 배정용)")]
+    [SerializeField] private Sprite[] gemSprites;
+
     // 외부 접근용
     public BoardRenderer Board => _board;
     public StageData CurrentStage => _stageData;
@@ -41,6 +44,9 @@ public class StageManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+
+        if (gemSprites == null || gemSprites.Length == 0)
+            Debug.LogWarning("[FitBlock] gemSprites 비어있음 — Inspector에서 할당 필요");
     }
 
     private void Start()
@@ -79,7 +85,7 @@ public class StageManager : MonoBehaviour
 
         _grid = new GridSystem(stage);
         _board.Init(_grid);
-        _tray.Init(stage);
+        _tray.Init(stage, gemSprites);
 
         Debug.Log($"[FitBlock] Stage {stage.stageNumber} 로드 완료 (조각 {_generatedPieces.Count}개)");
     }
@@ -181,19 +187,6 @@ public class StageManager : MonoBehaviour
         if (_stageLoader == null) return;
         var next = _stageLoader.GetNextStage(_stageData.stageNumber);
         if (next != null) LoadStage(next);
-    }
-
-    // ── 힌트 ──────────────────────────────────────────────
-
-    public void UseHint()
-    {
-        Debug.Log("[FitBlock] 힌트 사용");
-        // TODO: 힌트 로직 (정답 위치 1개 미리보기)
-    }
-
-    public void UseAdHelp()
-    {
-        Debug.Log("[FitBlock] 광고 도움 사용");
     }
 
     // ── 클리어 판정 ───────────────────────────────────────

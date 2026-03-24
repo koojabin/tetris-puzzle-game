@@ -11,9 +11,10 @@ public class BoardRenderer : MonoBehaviour
     [SerializeField] private float cellSize = 1f;
     [SerializeField] private float cellGap = 0.05f;
 
-    [Header("셀 색상")]
-    [SerializeField] private Color emptyColor = new Color(0.88f, 0.92f, 1f);
-    [SerializeField] private Color borderColor = new Color(0.65f, 0.75f, 0.9f);
+    [Header("셀 색상 (체커보드)")]
+    [SerializeField] private Color cellColorLight = new Color(0.32f, 0.25f, 0.38f);
+    [SerializeField] private Color cellColorDark  = new Color(0.24f, 0.18f, 0.30f);
+    [SerializeField] private Color boardBorderColor = new Color(0.18f, 0.13f, 0.22f);
     [SerializeField] private Color validHighlight = new Color(0.4f, 0.9f, 0.5f, 0.6f);
     [SerializeField] private Color invalidHighlight = new Color(1f, 0.3f, 0.3f, 0.6f);
 
@@ -58,7 +59,7 @@ public class BoardRenderer : MonoBehaviour
 
                 var sr = cellObj.AddComponent<SpriteRenderer>();
                 sr.sprite = _squareSprite;
-                sr.color = emptyColor;
+                sr.color = (x + y) % 2 == 0 ? cellColorLight : cellColorDark;
                 sr.sortingOrder = 0;
                 sr.size = Vector2.one * (cellSize - cellGap);
                 _cellRenderers[x, y] = sr;
@@ -68,7 +69,7 @@ public class BoardRenderer : MonoBehaviour
                 borderObj.transform.SetParent(cellObj.transform, false);
                 var borderSr = borderObj.AddComponent<SpriteRenderer>();
                 borderSr.sprite = _squareSprite;
-                borderSr.color = borderColor;
+                borderSr.color = boardBorderColor;
                 borderSr.sortingOrder = -1;
                 borderSr.size = Vector2.one * cellSize;
 

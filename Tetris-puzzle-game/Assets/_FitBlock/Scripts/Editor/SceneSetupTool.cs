@@ -32,7 +32,7 @@ public static class SceneSetupTool
         {
             mainCam.orthographic = true;
             mainCam.orthographicSize = 6f;
-            mainCam.backgroundColor = new Color(0.95f, 0.97f, 1f);
+            mainCam.backgroundColor = new Color(0.10f, 0.08f, 0.18f);
             mainCam.transform.position = new Vector3(0, 0, -10);
             if (mainCam.GetComponent<UnityEngine.EventSystems.Physics2DRaycaster>() == null)
                 mainCam.gameObject.AddComponent<UnityEngine.EventSystems.Physics2DRaycaster>();
