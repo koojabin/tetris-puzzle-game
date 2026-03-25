@@ -271,6 +271,12 @@ public class PieceView : MonoBehaviour,
                 float spriteSize = cs - gap;
                 float scale = spriteSize / (sr.sprite.rect.width / sr.sprite.pixelsPerUnit);
                 cellObj.transform.localScale = Vector3.one * scale;
+
+                // 피스별 고유 MaterialPropertyBlock → 스프라이트 배칭 방지
+                var mpb = new MaterialPropertyBlock();
+                sr.GetPropertyBlock(mpb);
+                mpb.SetFloat("_PieceId", PieceId);
+                sr.SetPropertyBlock(mpb);
             }
             else
             {
@@ -278,7 +284,7 @@ public class PieceView : MonoBehaviour,
                 sr.color = Data.pieceColor;
                 sr.size = Vector2.one * (cs - gap);
             }
-            sr.sortingOrder = 5;
+            sr.sortingOrder = 5 + PieceId;
             sr.maskInteraction = _maskInteraction;
             _cellRenderers.Add(sr);
         }
@@ -294,7 +300,7 @@ public class PieceView : MonoBehaviour,
     private void SetSortingOrder(int order)
     {
         foreach (var sr in _cellRenderers)
-            if (sr) sr.sortingOrder = order;
+            if (sr) sr.sortingOrder = order + PieceId;
     }
 
     private Vector3 ScreenToWorld(Vector2 screenPos)

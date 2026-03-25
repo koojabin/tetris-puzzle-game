@@ -13,6 +13,11 @@ public class StageSelectPanel : MonoBehaviour
     [SerializeField] private Transform buttonContainer;
     [SerializeField] private ScrollRect scrollRect;
 
+    [Header("스프라이트")]
+    [SerializeField] private Sprite btnUnlockedSprite;
+    [SerializeField] private Sprite btnLockedSprite;
+    [SerializeField] private Sprite checkMarkSprite;
+
     // 버튼 크기 설정
     private const float BTN_SIZE = 160f;
     private const float BTN_GAP = 20f;
@@ -57,7 +62,22 @@ public class StageSelectPanel : MonoBehaviour
             rt.anchoredPosition = new Vector2(x, y);
 
             var img = btnGo.AddComponent<Image>();
-            img.color = unlocked ? new Color(0.23f, 0.49f, 0.96f) : new Color(0.55f, 0.55f, 0.55f);
+            if (unlocked && btnUnlockedSprite != null)
+            {
+                img.sprite = btnUnlockedSprite;
+                img.type = Image.Type.Sliced;
+                img.color = Color.white;
+            }
+            else if (!unlocked && btnLockedSprite != null)
+            {
+                img.sprite = btnLockedSprite;
+                img.type = Image.Type.Sliced;
+                img.color = Color.white;
+            }
+            else
+            {
+                img.color = unlocked ? new Color(0.23f, 0.49f, 0.96f) : new Color(0.55f, 0.55f, 0.55f);
+            }
 
             var btn = btnGo.AddComponent<Button>();
             if (!unlocked) btn.interactable = false;
@@ -82,16 +102,29 @@ public class StageSelectPanel : MonoBehaviour
                 var checkGo = new GameObject("Check");
                 checkGo.transform.SetParent(btnGo.transform, false);
                 var checkRt = checkGo.AddComponent<RectTransform>();
-                checkRt.anchorMin = new Vector2(0f, 0f);
+                checkRt.anchorMin = new Vector2(1f, 0f);
                 checkRt.anchorMax = new Vector2(1f, 0f);
-                checkRt.pivot = new Vector2(0.5f, 0f);
-                checkRt.sizeDelta = new Vector2(0f, 28f);
-                checkRt.anchoredPosition = new Vector2(0f, 10f);
-                var checkTmp = checkGo.AddComponent<TextMeshProUGUI>();
-                checkTmp.text = "\u2714";
-                checkTmp.fontSize = 28;
-                checkTmp.alignment = TextAlignmentOptions.Center;
-                checkTmp.color = new Color(0.2f, 0.8f, 0.2f);
+                checkRt.pivot = new Vector2(1f, 0f);
+                checkRt.sizeDelta = new Vector2(40f, 40f);
+                checkRt.anchoredPosition = new Vector2(-8f, 8f);
+                var checkImg = checkGo.AddComponent<Image>();
+                if (checkMarkSprite != null)
+                {
+                    checkImg.sprite = checkMarkSprite;
+                    checkImg.preserveAspect = true;
+                    checkImg.color = Color.white;
+                    checkImg.raycastTarget = false;
+                }
+                else
+                {
+                    // 폴백: 텍스트
+                    Destroy(checkImg);
+                    var checkTmp = checkGo.AddComponent<TextMeshProUGUI>();
+                    checkTmp.text = "\u2714";
+                    checkTmp.fontSize = 28;
+                    checkTmp.alignment = TextAlignmentOptions.Center;
+                    checkTmp.color = new Color(0.2f, 0.8f, 0.2f);
+                }
             }
 
             // 잠금 아이콘 (텍스트)

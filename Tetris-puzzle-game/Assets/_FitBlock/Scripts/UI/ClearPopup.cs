@@ -48,7 +48,7 @@ public class ClearPopup : MonoBehaviour
 
         if (checkImage != null)
         {
-            checkImage.color = new Color(0.7f, 0.7f, 0.7f);
+            checkImage.color = new Color(1f, 1f, 1f, 0.3f);
             checkImage.transform.localScale = Vector3.zero;
         }
 
@@ -61,7 +61,7 @@ public class ClearPopup : MonoBehaviour
 
         if (checkImage == null) yield break;
 
-        checkImage.color = new Color(0.2f, 0.8f, 0.2f);
+        checkImage.color = Color.white;
         StartCoroutine(PunchScale(checkImage.transform));
     }
 

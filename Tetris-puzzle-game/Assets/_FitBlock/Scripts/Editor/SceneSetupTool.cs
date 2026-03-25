@@ -18,6 +18,19 @@ public static class SceneSetupTool
             "현재 씬에 FitBlock 게임 오브젝트들을 생성합니다.\n기존 FitBlock 오브젝트는 삭제 후 재생성됩니다.", "실행", "취소"))
             return;
 
+        // ── Chess Studio 스프라이트 로드 ──────────────────────
+        string chessBase = "Assets/Chess Studio/Block Puzzle GUI Pack/png";
+        ConfigureSlicedSprite($"{chessBase}/popup/Btn.png", new Vector4(28, 28, 28, 28));
+        ConfigureSlicedSprite($"{chessBase}/popup/YellowBtn.png", new Vector4(28, 28, 28, 28));
+        ConfigureSlicedSprite($"{chessBase}/Game/CardSlotBg.png", new Vector4(28, 28, 28, 28));
+
+        var greenBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/Btn.png");
+        var yellowBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/YellowBtn.png");
+        var grayBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Game/CardSlotBg.png");
+        var checkMarkSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/CheckMark.png");
+        var backSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Hierarchical Challenge/Back.png");
+        var xSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/x.png");
+
         // ── 기존 오브젝트 정리 ──────────────────────────────
         var oldNames = new[] { "GameManager", "UI_Canvas" };
         foreach (var name in oldNames)
@@ -32,7 +45,7 @@ public static class SceneSetupTool
         {
             mainCam.orthographic = true;
             mainCam.orthographicSize = 6f;
-            mainCam.backgroundColor = new Color(0.10f, 0.08f, 0.18f);
+            mainCam.backgroundColor = Color.white;
             mainCam.transform.position = new Vector3(0, 0, -10);
             if (mainCam.GetComponent<UnityEngine.EventSystems.Physics2DRaycaster>() == null)
                 mainCam.gameObject.AddComponent<UnityEngine.EventSystems.Physics2DRaycaster>();
@@ -85,28 +98,16 @@ public static class SceneSetupTool
             new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1),
             new Vector2(0, 120), new Vector2(0, 0));
 
-        // 메뉴 버튼 (왼쪽)
-        var menuBtn = CreateButton(hud.transform, "MenuButton", "Menu");
+        // 메뉴 버튼 (왼쪽) — Back 아이콘
+        var menuBtn = CreateIconButton(hud.transform, "MenuButton", backSprite);
         SetRectTransform(menuBtn.GetComponent<RectTransform>(),
             new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f),
-            new Vector2(80, 0), new Vector2(140, 80));
+            new Vector2(60, 0), new Vector2(80, 80));
 
         // 스테이지 텍스트 (중앙)
         var stageText = CreateText(hud.transform, "StageNumberText", "STAGE 1",
             new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
             new Vector2(0, 0), new Vector2(300, 80), 48);
-
-        // 클리어 체크 아이콘 (오른쪽)
-        var checkIconGo = new GameObject("ClearCheckIcon");
-        checkIconGo.transform.SetParent(hud.transform, false);
-        var checkIconRt = checkIconGo.AddComponent<RectTransform>();
-        checkIconRt.anchorMin = new Vector2(1, 0.5f);
-        checkIconRt.anchorMax = new Vector2(1, 0.5f);
-        checkIconRt.pivot = new Vector2(1, 0.5f);
-        checkIconRt.anchoredPosition = new Vector2(-30, 0);
-        checkIconRt.sizeDelta = new Vector2(60, 60);
-        var clearCheckImg = checkIconGo.AddComponent<Image>();
-        clearCheckImg.color = new Color(0.7f, 0.7f, 0.7f, 0.3f);
 
         // ── 하단 버튼 ─────────────────────────────────────
         var bottomBar = CreateUIPanel(gamePanel.transform, "BottomBar",
@@ -119,10 +120,10 @@ public static class SceneSetupTool
         bottomLayout.childForceExpandWidth = false;
         bottomLayout.childForceExpandHeight = false;
 
-        var rotateBtn = CreateButton(bottomBar.transform, "RotateButton", "Rotate");
-        var flipBtn = CreateButton(bottomBar.transform, "FlipButton", "Flip");
-        var undoBtn = CreateButton(bottomBar.transform, "UndoButton", "Undo");
-        var resetBtn = CreateButton(bottomBar.transform, "ResetButton", "Reset");
+        var rotateBtn = CreateButton(bottomBar.transform, "RotateButton", "Rotate", greenBtnSprite);
+        var flipBtn = CreateButton(bottomBar.transform, "FlipButton", "Flip", greenBtnSprite);
+        var undoBtn = CreateButton(bottomBar.transform, "UndoButton", "Undo", greenBtnSprite);
+        var resetBtn = CreateButton(bottomBar.transform, "ResetButton", "Reset", greenBtnSprite);
 
         // ── 클리어 팝업 ───────────────────────────────────
         var popupBg = CreateUIPanel(canvasGo.transform, "ClearPopup",
@@ -155,24 +156,31 @@ public static class SceneSetupTool
         popupCheckRt.anchoredPosition = new Vector2(0, 80);
         popupCheckRt.sizeDelta = new Vector2(100, 100);
         var popupCheckImg = popupCheckGo.AddComponent<Image>();
-        popupCheckImg.color = new Color(0.7f, 0.7f, 0.7f);
+        if (checkMarkSprite != null)
+        {
+            popupCheckImg.sprite = checkMarkSprite;
+            popupCheckImg.color = Color.white;
+            popupCheckImg.preserveAspect = true;
+        }
+        else
+        {
+            popupCheckImg.color = new Color(0.7f, 0.7f, 0.7f);
+        }
 
-        var nextBtn = CreateButton(popupPanel.transform, "NextStageButton", "Next Stage");
+        var nextBtn = CreateButton(popupPanel.transform, "NextStageButton", "Next Stage", yellowBtnSprite);
         SetRectTransform(nextBtn.GetComponent<RectTransform>(),
             new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0),
             new Vector2(0, 260), new Vector2(500, 90));
 
-        var replayBtn = CreateButton(popupPanel.transform, "ReplayButton", "Replay");
+        var replayBtn = CreateButton(popupPanel.transform, "ReplayButton", "Replay", greenBtnSprite);
         SetRectTransform(replayBtn.GetComponent<RectTransform>(),
             new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0),
             new Vector2(0, 160), new Vector2(500, 90));
 
-        var selectBtn = CreateButton(popupPanel.transform, "SelectStageButton", "Stage Select");
+        var selectBtn = CreateButton(popupPanel.transform, "SelectStageButton", "Stage Select", grayBtnSprite);
         SetRectTransform(selectBtn.GetComponent<RectTransform>(),
             new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0),
             new Vector2(0, 60), new Vector2(500, 90));
-        // Stage Select 버튼은 회색 계열
-        selectBtn.GetComponent<Image>().color = new Color(0.5f, 0.5f, 0.6f);
 
         // ClearPopup 컴포넌트 연결
         var clearPopup = popupBg.AddComponent<ClearPopup>();
@@ -190,7 +198,7 @@ public static class SceneSetupTool
             Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
             Vector2.zero, Vector2.zero);
         var ssPanelImg = ssPanel.AddComponent<Image>();
-        ssPanelImg.color = new Color(0.12f, 0.15f, 0.25f, 0.97f);
+        ssPanelImg.color = Color.white;
 
         // 타이틀
         var ssTitleGo = new GameObject("Title");
@@ -204,7 +212,7 @@ public static class SceneSetupTool
         ssTitleTmp.text = "SELECT STAGE";
         ssTitleTmp.fontSize = 54;
         ssTitleTmp.alignment = TextAlignmentOptions.Center;
-        ssTitleTmp.color = Color.white;
+        ssTitleTmp.color = new Color(0.2f, 0.2f, 0.2f);
 
         // 스크롤 뷰
         var scrollGo = new GameObject("ScrollView");
@@ -246,6 +254,9 @@ public static class SceneSetupTool
         ssSer.FindProperty("scrollRect").objectReferenceValue = scrollRect;
         if (loaderAsset != null)
             ssSer.FindProperty("stageLoader").objectReferenceValue = loaderAsset;
+        ssSer.FindProperty("btnUnlockedSprite").objectReferenceValue = greenBtnSprite;
+        ssSer.FindProperty("btnLockedSprite").objectReferenceValue = grayBtnSprite;
+        ssSer.FindProperty("checkMarkSprite").objectReferenceValue = checkMarkSprite;
         ssSer.ApplyModifiedProperties();
 
         // ── GameUIManager 연결 ────────────────────────────
@@ -259,7 +270,6 @@ public static class SceneSetupTool
         uiSer.FindProperty("clearPopup").objectReferenceValue = clearPopup;
         uiSer.FindProperty("gamePanel").objectReferenceValue = gamePanel;
         uiSer.FindProperty("stageSelectPanel").objectReferenceValue = ssComp;
-        uiSer.FindProperty("clearCheckIcon").objectReferenceValue = clearCheckImg;
         uiSer.ApplyModifiedProperties();
 
         // 팝업/셀렉트 비활성화
@@ -324,7 +334,7 @@ public static class SceneSetupTool
         return tmp;
     }
 
-    private static GameObject CreateButton(Transform parent, string name, string label)
+    private static GameObject CreateButton(Transform parent, string name, string label, Sprite btnSprite = null)
     {
         var go = new GameObject(name);
         go.transform.SetParent(parent, false);
@@ -332,12 +342,22 @@ public static class SceneSetupTool
         rt.sizeDelta = new Vector2(200, 80);
 
         var img = go.AddComponent<Image>();
-        img.color = new Color(0.23f, 0.49f, 0.96f);
+        if (btnSprite != null)
+        {
+            img.sprite = btnSprite;
+            img.type = Image.Type.Sliced;
+            img.color = Color.white;
+        }
+        else
+        {
+            img.color = new Color(0.23f, 0.49f, 0.96f);
+        }
 
         var btn = go.AddComponent<Button>();
         var colors = btn.colors;
-        colors.highlightedColor = new Color(0.3f, 0.6f, 1f);
-        colors.pressedColor = new Color(0.15f, 0.35f, 0.75f);
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(0.9f, 0.9f, 0.9f);
+        colors.pressedColor = new Color(0.7f, 0.7f, 0.7f);
         btn.colors = colors;
 
         var textGo = new GameObject("Text");
@@ -354,6 +374,68 @@ public static class SceneSetupTool
         tmp.color = Color.white;
 
         return go;
+    }
+
+    /// <summary>아이콘만 있는 버튼 (텍스트 없음)</summary>
+    private static GameObject CreateIconButton(Transform parent, string name, Sprite iconSprite)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        var rt = go.AddComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(80, 80);
+
+        var img = go.AddComponent<Image>();
+        img.color = Color.clear; // 배경 투명
+
+        var btn = go.AddComponent<Button>();
+        var colors = btn.colors;
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(0.85f, 0.85f, 0.85f);
+        colors.pressedColor = new Color(0.65f, 0.65f, 0.65f);
+        btn.colors = colors;
+
+        // 아이콘 이미지
+        if (iconSprite != null)
+        {
+            var iconGo = new GameObject("Icon");
+            iconGo.transform.SetParent(go.transform, false);
+            var iconRt = iconGo.AddComponent<RectTransform>();
+            iconRt.anchorMin = Vector2.zero;
+            iconRt.anchorMax = Vector2.one;
+            iconRt.offsetMin = new Vector2(8, 8);
+            iconRt.offsetMax = new Vector2(-8, -8);
+            var iconImg = iconGo.AddComponent<Image>();
+            iconImg.sprite = iconSprite;
+            iconImg.preserveAspect = true;
+            iconImg.raycastTarget = false;
+            btn.targetGraphic = iconImg;
+        }
+
+        return go;
+    }
+
+    /// <summary>스프라이트를 9-slice용으로 설정 (에디터 전용)</summary>
+    private static void ConfigureSlicedSprite(string path, Vector4 border)
+    {
+        var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer == null) return;
+
+        bool needsReimport = false;
+
+        if (importer.textureType != TextureImporterType.Sprite)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            needsReimport = true;
+        }
+
+        if (importer.spriteBorder != border)
+        {
+            importer.spriteBorder = border;
+            needsReimport = true;
+        }
+
+        if (needsReimport)
+            importer.SaveAndReimport();
     }
 
     private static void SetRectTransform(RectTransform rt,

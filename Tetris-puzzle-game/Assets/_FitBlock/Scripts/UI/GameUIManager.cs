@@ -12,7 +12,6 @@ public class GameUIManager : MonoBehaviour
 
     [Header("HUD")]
     [SerializeField] private TextMeshProUGUI stageNumberText;
-    [SerializeField] private Image clearCheckIcon;
 
     [Header("버튼")]
     [SerializeField] private Button undoButton;
@@ -88,15 +87,6 @@ public class GameUIManager : MonoBehaviour
         int stageNum = StageManager.Instance.CurrentStage.stageNumber;
         if (stageNumberText != null)
             stageNumberText.text = $"STAGE {stageNum}";
-
-        bool cleared = SaveSystem.IsStageCleared(stageNum);
-        RefreshClearCheck(cleared);
-    }
-
-    private void RefreshClearCheck(bool cleared)
-    {
-        if (clearCheckIcon != null)
-            clearCheckIcon.color = cleared ? new Color(0.2f, 0.8f, 0.2f) : new Color(0.7f, 0.7f, 0.7f, 0.3f);
     }
 
     // ── 버튼 콜백 ─────────────────────────────────────────
@@ -122,7 +112,6 @@ public class GameUIManager : MonoBehaviour
 
     private void OnStageClear()
     {
-        RefreshClearCheck(true);
         clearPopup?.Show();
     }
 }
