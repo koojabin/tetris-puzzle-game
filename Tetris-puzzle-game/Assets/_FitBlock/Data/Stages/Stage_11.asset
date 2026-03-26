@@ -17,7 +17,7 @@ MonoBehaviour:
   boardHeight: 4
   boardCells: 0101010101010101010101010101010101010101
   allowedPieces: []
-  pieceCount: 3
+  pieceCount: 5
   pieces: []
   allowFlip: 1
   isValidated: 0
