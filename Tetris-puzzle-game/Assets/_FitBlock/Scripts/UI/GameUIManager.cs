@@ -24,6 +24,11 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] private ClearPopup clearPopup;
     [SerializeField] private GameObject gamePanel;        // HUD + 보드 영역
     [SerializeField] private StageSelectPanel stageSelectPanel;
+    [SerializeField] private SettingsPanel settingsPanel;
+
+    [Header("설정 버튼")]
+    [SerializeField] private Button settingsButtonHUD;
+    [SerializeField] private Button settingsButtonStageSelect;
 
     private void Awake()
     {
@@ -47,8 +52,11 @@ public class GameUIManager : MonoBehaviour
         rotateButton?.onClick.AddListener(OnRotateClicked);
         flipButton?.onClick.AddListener(OnFlipClicked);
         menuButton?.onClick.AddListener(OnMenuClicked);
+        settingsButtonHUD?.onClick.AddListener(OnSettingsClicked);
+        settingsButtonStageSelect?.onClick.AddListener(OnSettingsClicked);
 
         clearPopup?.gameObject.SetActive(false);
+        settingsPanel?.gameObject.SetActive(false);
 
         if (StageManager.Instance != null)
         {
@@ -105,6 +113,8 @@ public class GameUIManager : MonoBehaviour
     }
 
     private void OnMenuClicked() => ShowStageSelect();
+
+    private void OnSettingsClicked() => settingsPanel?.Show();
 
     public void GoToTitle() => SceneLoader.LoadTitle();
 

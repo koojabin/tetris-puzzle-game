@@ -20,6 +20,9 @@ public class SettingsPanel : MonoBehaviour
     [Header("버튼")]
     [SerializeField] private Button closeButton;
 
+    [Header("기타")]
+    [SerializeField] private TextMeshProUGUI versionText;
+
     // 외부에서 현재 설정값 읽기
     public static bool BGMEnabled      => PlayerPrefs.GetInt(KEY_BGM, 1) == 1;
     public static bool SFXEnabled      => PlayerPrefs.GetInt(KEY_SFX, 1) == 1;
@@ -28,6 +31,8 @@ public class SettingsPanel : MonoBehaviour
     private void Awake()
     {
         closeButton?.onClick.AddListener(Hide);
+        if (versionText != null)
+            versionText.text = $"v{Application.version}";
     }
 
     private void OnEnable()

@@ -66,7 +66,7 @@ public class StageSelectPanel : MonoBehaviour
             {
                 img.sprite = btnUnlockedSprite;
                 img.type = Image.Type.Sliced;
-                img.color = Color.white;
+                img.color = new Color(0.45f, 0.72f, 1f); // 하늘색 틴트
             }
             else if (!unlocked && btnLockedSprite != null)
             {
@@ -76,19 +76,19 @@ public class StageSelectPanel : MonoBehaviour
             }
             else
             {
-                img.color = unlocked ? new Color(0.23f, 0.49f, 0.96f) : new Color(0.55f, 0.55f, 0.55f);
+                img.color = unlocked ? new Color(0.45f, 0.72f, 1f) : new Color(0.55f, 0.55f, 0.55f);
             }
 
             var btn = btnGo.AddComponent<Button>();
             if (!unlocked) btn.interactable = false;
 
-            // 스테이지 번호 텍스트
+            // 스테이지 번호 텍스트 (상단 배치)
             var numGo = new GameObject("Num");
             numGo.transform.SetParent(btnGo.transform, false);
             var numRt = numGo.AddComponent<RectTransform>();
-            numRt.anchorMin = Vector2.zero;
+            numRt.anchorMin = new Vector2(0f, 0.35f);
             numRt.anchorMax = Vector2.one;
-            numRt.offsetMin = new Vector2(0, 30f);
+            numRt.offsetMin = Vector2.zero;
             numRt.offsetMax = Vector2.zero;
             var numTmp = numGo.AddComponent<TextMeshProUGUI>();
             numTmp.text = stage.stageNumber.ToString();
@@ -96,17 +96,17 @@ public class StageSelectPanel : MonoBehaviour
             numTmp.alignment = TextAlignmentOptions.Center;
             numTmp.color = Color.white;
 
-            // 클리어 체크 표시
+            // 클리어 체크 표시 (숫자 아래 중앙)
             if (cleared)
             {
                 var checkGo = new GameObject("Check");
                 checkGo.transform.SetParent(btnGo.transform, false);
                 var checkRt = checkGo.AddComponent<RectTransform>();
-                checkRt.anchorMin = new Vector2(1f, 0f);
-                checkRt.anchorMax = new Vector2(1f, 0f);
-                checkRt.pivot = new Vector2(1f, 0f);
-                checkRt.sizeDelta = new Vector2(40f, 40f);
-                checkRt.anchoredPosition = new Vector2(-8f, 8f);
+                checkRt.anchorMin = new Vector2(0.5f, 0f);
+                checkRt.anchorMax = new Vector2(0.5f, 0f);
+                checkRt.pivot = new Vector2(0.5f, 0f);
+                checkRt.sizeDelta = new Vector2(36f, 36f);
+                checkRt.anchoredPosition = new Vector2(0f, 37f);
                 var checkImg = checkGo.AddComponent<Image>();
                 if (checkMarkSprite != null)
                 {

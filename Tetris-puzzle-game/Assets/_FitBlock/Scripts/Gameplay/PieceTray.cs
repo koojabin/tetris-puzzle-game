@@ -25,6 +25,7 @@ public class PieceTray : MonoBehaviour
     [SerializeField] private float trayPieceScale = 0.55f;
 
     [Header("트레이 배경")]
+    [SerializeField] private Sprite trayBgSprite;
     [SerializeField] private Color trayBgColor = new Color(0.78f, 0.85f, 0.95f, 0.8f);
 
     [Header("개수 배지")]
@@ -171,7 +172,17 @@ public class PieceTray : MonoBehaviour
         _trayBgObj.transform.localScale = new Vector3(trayWidth, _trayVisibleHeight, 1f);
 
         var bgSr = _trayBgObj.AddComponent<SpriteRenderer>();
-        bgSr.sprite = CreateSquareSprite();
+        if (trayBgSprite != null)
+        {
+            bgSr.sprite = trayBgSprite;
+            bgSr.drawMode = SpriteDrawMode.Sliced;
+            bgSr.size = new Vector2(trayWidth, _trayVisibleHeight);
+            _trayBgObj.transform.localScale = Vector3.one;
+        }
+        else
+        {
+            bgSr.sprite = CreateSquareSprite();
+        }
         bgSr.color = trayBgColor;
         bgSr.sortingOrder = -2;
     }

@@ -30,6 +30,11 @@ public static class SceneSetupTool
         var checkMarkSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/CheckMark.png");
         var backSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Hierarchical Challenge/Back.png");
         var xSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/x.png");
+        var settingSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Main/Setting.png");
+        var tabOnSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/TabOn.png");
+        var tabOffSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/TabOff.png");
+        var bgmImgSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/BGMImg.png");
+        var soundImgSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/SoundImg.png");
 
         // ── 기존 오브젝트 정리 ──────────────────────────────
         var oldNames = new[] { "GameManager", "UI_Canvas" };
@@ -70,7 +75,23 @@ public static class SceneSetupTool
         var loaderAsset = AssetDatabase.LoadAssetAtPath<StageLoader>("Assets/_FitBlock/Data/StageLoader.asset");
         if (loaderAsset != null)
             serialized.FindProperty("_stageLoader").objectReferenceValue = loaderAsset;
+
+        // 젬 스프라이트 자동 할당
+        var gemNames = new[] { "Blue", "Green", "Purple", "Red", "RoseRed", "SkyBlue", "Yellow" };
+        var gemProp = serialized.FindProperty("gemSprites");
+        gemProp.arraySize = gemNames.Length;
+        for (int i = 0; i < gemNames.Length; i++)
+        {
+            var gem = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Game/{gemNames[i]}.png");
+            gemProp.GetArrayElementAtIndex(i).objectReferenceValue = gem;
+        }
+
         serialized.ApplyModifiedProperties();
+
+        // 트레이 배경 스프라이트 자동 할당
+        var traySer = new SerializedObject(tray.GetComponent<PieceTray>());
+        traySer.FindProperty("trayBgSprite").objectReferenceValue = grayBtnSprite;
+        traySer.ApplyModifiedProperties();
 
         // ── UI Canvas ─────────────────────────────────────
         var canvasGo = new GameObject("UI_Canvas");
@@ -103,6 +124,12 @@ public static class SceneSetupTool
         SetRectTransform(menuBtn.GetComponent<RectTransform>(),
             new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f),
             new Vector2(60, 0), new Vector2(80, 80));
+
+        // 설정 버튼 (오른쪽) — Setting 아이콘
+        var settingsBtnHUD = CreateIconButton(hud.transform, "SettingsButtonHUD", settingSprite);
+        SetRectTransform(settingsBtnHUD.GetComponent<RectTransform>(),
+            new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
+            new Vector2(-60, 0), new Vector2(80, 80));
 
         // 스테이지 텍스트 (중앙)
         var stageText = CreateText(hud.transform, "StageNumberText", "STAGE 1",
@@ -213,6 +240,13 @@ public static class SceneSetupTool
         ssTitleTmp.fontSize = 54;
         ssTitleTmp.alignment = TextAlignmentOptions.Center;
         ssTitleTmp.color = new Color(0.2f, 0.2f, 0.2f);
+        ssTitleTmp.raycastTarget = false;
+
+        // 설정 버튼 (오른쪽 위) — 타이틀 위에 렌더링
+        var settingsBtnSS = CreateIconButton(ssPanel.transform, "SettingsButtonSS", settingSprite);
+        SetRectTransform(settingsBtnSS.GetComponent<RectTransform>(),
+            new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1),
+            new Vector2(-30, -30), new Vector2(80, 80));
 
         // 스크롤 뷰
         var scrollGo = new GameObject("ScrollView");
@@ -259,6 +293,63 @@ public static class SceneSetupTool
         ssSer.FindProperty("checkMarkSprite").objectReferenceValue = checkMarkSprite;
         ssSer.ApplyModifiedProperties();
 
+        // ── 설정 패널 ────────────────────────────────────
+        var settingsBg = CreateUIPanel(canvasGo.transform, "SettingsPanel",
+            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
+            Vector2.zero, Vector2.zero);
+        var settingsBgImg = settingsBg.AddComponent<Image>();
+        settingsBgImg.color = new Color(0, 0, 0, 0.6f);
+
+        var settingsBox = CreateUIPanel(settingsBg.transform, "SettingsBox",
+            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+            new Vector2(700, 800), Vector2.zero);
+        var settingsBoxImg = settingsBox.AddComponent<Image>();
+        settingsBoxImg.color = new Color(1f, 1f, 1f, 0.97f);
+
+        // 설정 타이틀
+        var setTitle = CreateText(settingsBox.transform, "SettingsTitle", "SETTINGS",
+            new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1),
+            new Vector2(0, -60), new Vector2(500, 80), 54);
+
+        // 닫기 버튼 (X)
+        var closeBtn = CreateIconButton(settingsBox.transform, "CloseButton", xSprite);
+        SetRectTransform(closeBtn.GetComponent<RectTransform>(),
+            new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1),
+            new Vector2(-20, -20), new Vector2(70, 70));
+
+        // BGM 토글
+        var bgmToggle = CreateToggle(settingsBox.transform, "BGMToggle", "BGM", tabOnSprite, tabOffSprite, bgmImgSprite);
+        SetRectTransform(bgmToggle.GetComponent<RectTransform>(),
+            new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1),
+            new Vector2(0, -200), new Vector2(500, 70));
+
+        // SFX 토글
+        var sfxToggle = CreateToggle(settingsBox.transform, "SFXToggle", "SFX", tabOnSprite, tabOffSprite, soundImgSprite);
+        SetRectTransform(sfxToggle.GetComponent<RectTransform>(),
+            new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1),
+            new Vector2(0, -300), new Vector2(500, 70));
+
+        // 진동 토글
+        var vibToggle = CreateToggle(settingsBox.transform, "VibrationToggle", "Vibration", tabOnSprite, tabOffSprite, null);
+        SetRectTransform(vibToggle.GetComponent<RectTransform>(),
+            new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1),
+            new Vector2(0, -400), new Vector2(500, 70));
+
+        // 버전 텍스트
+        var versionTxt = CreateText(settingsBox.transform, "VersionText", "v1.0",
+            new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0),
+            new Vector2(0, 30), new Vector2(300, 40), 24);
+
+        // SettingsPanel 컴포넌트 연결
+        var settingsComp = settingsBg.AddComponent<SettingsPanel>();
+        var spSer = new SerializedObject(settingsComp);
+        spSer.FindProperty("bgmToggle").objectReferenceValue = bgmToggle.GetComponent<Toggle>();
+        spSer.FindProperty("sfxToggle").objectReferenceValue = sfxToggle.GetComponent<Toggle>();
+        spSer.FindProperty("vibrationToggle").objectReferenceValue = vibToggle.GetComponent<Toggle>();
+        spSer.FindProperty("closeButton").objectReferenceValue = closeBtn.GetComponent<Button>();
+        spSer.FindProperty("versionText").objectReferenceValue = versionTxt;
+        spSer.ApplyModifiedProperties();
+
         // ── GameUIManager 연결 ────────────────────────────
         var uiSer = new SerializedObject(uiManager);
         uiSer.FindProperty("stageNumberText").objectReferenceValue = stageText;
@@ -270,10 +361,14 @@ public static class SceneSetupTool
         uiSer.FindProperty("clearPopup").objectReferenceValue = clearPopup;
         uiSer.FindProperty("gamePanel").objectReferenceValue = gamePanel;
         uiSer.FindProperty("stageSelectPanel").objectReferenceValue = ssComp;
+        uiSer.FindProperty("settingsPanel").objectReferenceValue = settingsComp;
+        uiSer.FindProperty("settingsButtonHUD").objectReferenceValue = settingsBtnHUD.GetComponent<Button>();
+        uiSer.FindProperty("settingsButtonStageSelect").objectReferenceValue = settingsBtnSS.GetComponent<Button>();
         uiSer.ApplyModifiedProperties();
 
         // 팝업/셀렉트 비활성화
         popupBg.SetActive(false);
+        settingsBg.SetActive(false);
         ssPanel.SetActive(true);
 
         // ── EventSystem ───────────────────────────────────
@@ -365,7 +460,8 @@ public static class SceneSetupTool
         var textRt = textGo.AddComponent<RectTransform>();
         textRt.anchorMin = Vector2.zero;
         textRt.anchorMax = Vector2.one;
-        textRt.sizeDelta = Vector2.zero;
+        textRt.offsetMin = new Vector2(0, 6);
+        textRt.offsetMax = new Vector2(0, 6);
 
         var tmp = textGo.AddComponent<TextMeshProUGUI>();
         tmp.text = label;
@@ -410,6 +506,101 @@ public static class SceneSetupTool
             iconImg.raycastTarget = false;
             btn.targetGraphic = iconImg;
         }
+
+        return go;
+    }
+
+    /// <summary>아이콘 + 라벨 + TabOn/TabOff 스위치 토글</summary>
+    private static GameObject CreateToggle(Transform parent, string name, string label,
+        Sprite onSprite, Sprite offSprite, Sprite iconSprite)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        var rt = go.AddComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(500, 70);
+
+        var toggle = go.AddComponent<Toggle>();
+        toggle.transition = Selectable.Transition.None;
+
+        // 아이콘 (왼쪽)
+        float labelLeft = 0;
+        if (iconSprite != null)
+        {
+            var iconGo = new GameObject("Icon");
+            iconGo.transform.SetParent(go.transform, false);
+            var iconRt = iconGo.AddComponent<RectTransform>();
+            iconRt.anchorMin = new Vector2(0, 0.5f);
+            iconRt.anchorMax = new Vector2(0, 0.5f);
+            iconRt.pivot = new Vector2(0, 0.5f);
+            iconRt.anchoredPosition = Vector2.zero;
+            iconRt.sizeDelta = new Vector2(50, 50);
+            var iconImg = iconGo.AddComponent<Image>();
+            iconImg.sprite = iconSprite;
+            iconImg.preserveAspect = true;
+            iconImg.raycastTarget = false;
+            iconImg.color = new Color(0.3f, 0.3f, 0.3f);
+            labelLeft = 60;
+        }
+
+        // 라벨
+        var labelGo = new GameObject("Label");
+        labelGo.transform.SetParent(go.transform, false);
+        var labelRt = labelGo.AddComponent<RectTransform>();
+        labelRt.anchorMin = new Vector2(0, 0);
+        labelRt.anchorMax = new Vector2(0.6f, 1);
+        labelRt.offsetMin = new Vector2(labelLeft, 0);
+        labelRt.offsetMax = Vector2.zero;
+        var labelTmp = labelGo.AddComponent<TextMeshProUGUI>();
+        labelTmp.text = label;
+        labelTmp.fontSize = 36;
+        labelTmp.alignment = TextAlignmentOptions.MidlineLeft;
+        labelTmp.color = new Color(0.2f, 0.2f, 0.2f);
+        labelTmp.raycastTarget = false;
+
+        // TabOff 배경 (오른쪽) — 180도 회전으로 노브 왼쪽
+        var bgGo = new GameObject("Background");
+        bgGo.transform.SetParent(go.transform, false);
+        var bgRt = bgGo.AddComponent<RectTransform>();
+        bgRt.anchorMin = new Vector2(1, 0.5f);
+        bgRt.anchorMax = new Vector2(1, 0.5f);
+        bgRt.pivot = new Vector2(0.5f, 0.5f);
+        bgRt.anchoredPosition = new Vector2(-60, 0);
+        bgRt.sizeDelta = new Vector2(120, 60);
+        bgRt.localRotation = Quaternion.Euler(0, 0, 180);
+        var bgImg = bgGo.AddComponent<Image>();
+        if (offSprite != null)
+        {
+            bgImg.sprite = offSprite;
+            bgImg.preserveAspect = true;
+        }
+        else
+        {
+            bgImg.color = new Color(0.8f, 0.8f, 0.8f);
+        }
+
+        // TabOn 체크마크 (같은 위치, 회전 없음)
+        var checkGo = new GameObject("Checkmark");
+        checkGo.transform.SetParent(go.transform, false);
+        var checkRt = checkGo.AddComponent<RectTransform>();
+        checkRt.anchorMin = new Vector2(1, 0.5f);
+        checkRt.anchorMax = new Vector2(1, 0.5f);
+        checkRt.pivot = new Vector2(0.5f, 0.5f);
+        checkRt.anchoredPosition = new Vector2(-60, 0);
+        checkRt.sizeDelta = new Vector2(120, 60);
+        var checkImg = checkGo.AddComponent<Image>();
+        if (onSprite != null)
+        {
+            checkImg.sprite = onSprite;
+            checkImg.preserveAspect = true;
+        }
+        else
+        {
+            checkImg.color = new Color(0.2f, 0.8f, 0.2f);
+        }
+
+        toggle.targetGraphic = bgImg;
+        toggle.graphic = checkImg;
+        toggle.isOn = true;
 
         return go;
     }
