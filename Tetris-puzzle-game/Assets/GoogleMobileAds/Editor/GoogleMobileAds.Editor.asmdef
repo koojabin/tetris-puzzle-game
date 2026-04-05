@@ -1,10 +1,14 @@
 {
-    "name": "FitBlock.Core",
-    "rootNamespace": "",
+    "name": "GoogleMobileAds.Editor",
     "references": [
-        "GoogleMobileAds"
+        "GoogleMobileAds",
+        "GoogleMobileAds.Core",
+        "GoogleMobileAds.Placement",
+        "GoogleMobileAds.Placement.Core"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

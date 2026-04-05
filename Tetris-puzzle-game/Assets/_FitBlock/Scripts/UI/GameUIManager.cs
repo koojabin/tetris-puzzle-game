@@ -77,6 +77,7 @@ public class GameUIManager : MonoBehaviour
     {
         gamePanel?.SetActive(true);
         stageSelectPanel?.gameObject.SetActive(false);
+        HideBannerAd();
     }
 
     public void ShowStageSelect()
@@ -84,6 +85,7 @@ public class GameUIManager : MonoBehaviour
         stageSelectPanel?.gameObject.SetActive(true);
         gamePanel?.SetActive(false);
         clearPopup?.gameObject.SetActive(false);
+        ShowBannerAd();
     }
 
     // ── HUD ──────────────────────────────────────────────
@@ -108,8 +110,7 @@ public class GameUIManager : MonoBehaviour
     private void OnResetClicked()
     {
         if (clearPopup != null && clearPopup.gameObject.activeSelf) return;
-        StageManager.Instance?.ResetStage();
-        RefreshHUD();
+        DoReset();
     }
 
     private void OnMenuClicked() => ShowStageSelect();
@@ -118,10 +119,46 @@ public class GameUIManager : MonoBehaviour
 
     public void GoToTitle() => SceneLoader.LoadTitle();
 
+    // ── 리셋 (재시도 광고) ──────────────────────────────────
+
+    private void DoReset()
+    {
+        int stageNum = StageManager.Instance?.CurrentStage?.stageNumber ?? 0;
+        if (AdManager.Instance != null && stageNum > 0)
+        {
+            AdManager.Instance.ShowRetryInterstitial(stageNum, () =>
+            {
+                StageManager.Instance?.ResetStage();
+                RefreshHUD();
+            });
+        }
+        else
+        {
+            StageManager.Instance?.ResetStage();
+            RefreshHUD();
+        }
+    }
+
+    // ── 배너 광고 관리 ────────────────────────────────────────
+
+    private void ShowBannerAd() => AdManager.Instance?.ShowBanner();
+    private void HideBannerAd() => AdManager.Instance?.HideBanner();
+
     // ── 클리어 이벤트 ─────────────────────────────────────
 
     private void OnStageClear()
     {
-        clearPopup?.Show();
+        int stageNum = StageManager.Instance?.CurrentStage?.stageNumber ?? 0;
+        if (AdManager.Instance != null && stageNum > 0)
+        {
+            AdManager.Instance.ShowClearInterstitial(stageNum, () =>
+            {
+                clearPopup?.Show();
+            });
+        }
+        else
+        {
+            clearPopup?.Show();
+        }
     }
 }

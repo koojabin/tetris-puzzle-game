@@ -90,8 +90,20 @@ public class ClearPopup : MonoBehaviour
     private void OnReplay()
     {
         gameObject.SetActive(false);
-        StageManager.Instance?.ResetStage();
-        GameUIManager.Instance?.RefreshHUD();
+        int stageNum = StageManager.Instance?.CurrentStage?.stageNumber ?? 0;
+        if (AdManager.Instance != null && stageNum > 0)
+        {
+            AdManager.Instance.ShowRetryInterstitial(stageNum, () =>
+            {
+                StageManager.Instance?.ResetStage();
+                GameUIManager.Instance?.RefreshHUD();
+            });
+        }
+        else
+        {
+            StageManager.Instance?.ResetStage();
+            GameUIManager.Instance?.RefreshHUD();
+        }
     }
 
     private void OnSelectStage()

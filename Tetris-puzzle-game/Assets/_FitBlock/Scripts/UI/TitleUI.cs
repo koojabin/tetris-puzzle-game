@@ -16,9 +16,15 @@ public class TitleUI : MonoBehaviour
         settingsButton?.onClick.AddListener(OnSettingsClicked);
 
         settingsPanel?.Hide();
+
+        AdManager.Instance?.ShowBanner();
     }
 
-    private void OnStartClicked() => SceneLoader.LoadGame();
+    private void OnStartClicked()
+    {
+        AdManager.Instance?.HideBanner();
+        SceneLoader.LoadGame();
+    }
 
     private void OnSettingsClicked() => settingsPanel?.Show();
 }
