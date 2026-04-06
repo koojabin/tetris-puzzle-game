@@ -56,6 +56,30 @@ public static class SceneSetupTool
                 mainCam.gameObject.AddComponent<UnityEngine.EventSystems.Physics2DRaycaster>();
         }
 
+        // ── 배경 스프라이트 ─────────────────────────────────
+        var oldBg = GameObject.Find("GameBackground");
+        if (oldBg != null) Object.DestroyImmediate(oldBg);
+
+        var bgSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Main/bg.png");
+        if (bgSprite != null && mainCam != null)
+        {
+            var bgObj = new GameObject("GameBackground");
+            var bgSr = bgObj.AddComponent<SpriteRenderer>();
+            bgSr.sprite = bgSprite;
+            bgSr.sortingOrder = -100;
+
+            // 카메라 영역에 맞게 스케일 조정
+            float camHeight = mainCam.orthographicSize * 2f;
+            float camWidth = camHeight * mainCam.aspect;
+            float spriteW = bgSprite.bounds.size.x;
+            float spriteH = bgSprite.bounds.size.y;
+            float scaleX = camWidth / spriteW;
+            float scaleY = camHeight / spriteH;
+            float scale = Mathf.Max(scaleX, scaleY);
+            bgObj.transform.localScale = new Vector3(scale, scale, 1f);
+            bgObj.transform.position = new Vector3(0, 0, 10f);
+        }
+
         // ── GameManager ───────────────────────────────────
         var gameManager = new GameObject("GameManager");
         var sm = gameManager.AddComponent<StageManager>();
@@ -225,22 +249,32 @@ public static class SceneSetupTool
             Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
             Vector2.zero, Vector2.zero);
         var ssPanelImg = ssPanel.AddComponent<Image>();
-        ssPanelImg.color = Color.white;
+        var ssBgSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Main/bg.png");
+        if (ssBgSprite != null)
+        {
+            ssPanelImg.sprite = ssBgSprite;
+            ssPanelImg.type = Image.Type.Simple;
+            ssPanelImg.preserveAspect = false;
+            ssPanelImg.color = Color.white;
+        }
+        else
+        {
+            ssPanelImg.color = Color.white;
+        }
 
-        // 타이틀
+        // 타이틀 (flag 이미지)
+        var flagSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Main/flag.png");
         var ssTitleGo = new GameObject("Title");
         ssTitleGo.transform.SetParent(ssPanel.transform, false);
         var ssTitleRt = ssTitleGo.AddComponent<RectTransform>();
-        ssTitleRt.anchorMin = new Vector2(0, 1); ssTitleRt.anchorMax = new Vector2(1, 1);
+        ssTitleRt.anchorMin = new Vector2(0.5f, 1); ssTitleRt.anchorMax = new Vector2(0.5f, 1);
         ssTitleRt.pivot = new Vector2(0.5f, 1);
-        ssTitleRt.sizeDelta = new Vector2(0, 140);
+        ssTitleRt.sizeDelta = new Vector2(400, 140);
         ssTitleRt.anchoredPosition = Vector2.zero;
-        var ssTitleTmp = ssTitleGo.AddComponent<TextMeshProUGUI>();
-        ssTitleTmp.text = "SELECT STAGE";
-        ssTitleTmp.fontSize = 54;
-        ssTitleTmp.alignment = TextAlignmentOptions.Center;
-        ssTitleTmp.color = new Color(0.2f, 0.2f, 0.2f);
-        ssTitleTmp.raycastTarget = false;
+        var ssTitleImg = ssTitleGo.AddComponent<Image>();
+        ssTitleImg.sprite = flagSprite;
+        ssTitleImg.preserveAspect = true;
+        ssTitleImg.raycastTarget = false;
 
         // 설정 버튼 (오른쪽 위) — 타이틀 위에 렌더링
         var settingsBtnSS = CreateIconButton(ssPanel.transform, "SettingsButtonSS", settingSprite);

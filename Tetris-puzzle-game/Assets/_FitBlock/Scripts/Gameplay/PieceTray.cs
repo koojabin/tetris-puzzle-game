@@ -18,6 +18,8 @@ public class PieceTray : MonoBehaviour
 
     [Header("트레이 설정")]
     [SerializeField] private float spacing = 1.5f;
+    [SerializeField] private float pieceGap = 0.35f;
+    [SerializeField] private float pieceXOffset = -0.5f;
     [SerializeField] private float trayMarginRight = 1.5f;
     [SerializeField] private float trayWidth = 4f;
     [SerializeField] private float trayTopMargin = 1.0f;
@@ -38,7 +40,8 @@ public class PieceTray : MonoBehaviour
     private float _contentHeight = 0f;
 
     // 트레이 영역 (월드 좌표)
-    private float _trayCenterX;
+    private float _trayCenterX;   // 배경/마스크 중심
+    private float _pieceX;        // 조각 배치 X좌표
     private float _trayMinX, _trayMaxX;
     private float _trayMinY, _trayMaxY;
     private float _trayVisibleHeight;
@@ -60,6 +63,7 @@ public class PieceTray : MonoBehaviour
         public PieceData data;
         public List<PieceView> pieces = new List<PieceView>();
         public float slotY;
+        public float pieceHeight; // 조각의 실제 세로 크기 (셀 단위)
         public GameObject countBadge;
         public TextMesh countText;
     }
@@ -110,21 +114,37 @@ public class PieceTray : MonoBehaviour
                 assignedSprites[j] = gemSprites[indices[j % indices.Count]];
         }
 
-        // ── 2. 각 조각 개별 슬롯 배치 ──
-        _contentHeight = (sortedPieces.Count - 1) * spacing;
-        float startY = _trayMaxY - spacing;
+        // ── 2. 각 조각 개별 슬롯 배치 (조각 아래~다음 조각 위 간격 일정) ──
+        float cs = 1f;
+        if (StageManager.Instance != null && StageManager.Instance.Board != null)
+            cs = StageManager.Instance.Board.CellSize;
+
+        // curTopY = 다음 조각의 맨 위가 올 Y좌표
+        float curTopY = _trayMaxY - spacing;
 
         int pieceId = 1;
         for (int i = 0; i < sortedPieces.Count; i++)
         {
             var pieceData = sortedPieces[i];
 
+            // 조각의 세로 높이 계산
+            var cells = pieceData.GetNormalizedCells();
+            int maxCellY = 0;
+            foreach (var c in cells)
+                if (c.y > maxCellY) maxCellY = c.y;
+            float pieceH = (maxCellY + 1) * cs * trayPieceScale;
+
             var group = new PieceGroup();
             group.pieceName = pieceData.pieceName;
             group.data = pieceData;
-            group.slotY = startY - i * spacing;
+            group.pieceHeight = pieceH;
+            // 조각 원점(0,0셀)은 아래쪽 → slotY = 맨위 - 높이
+            group.slotY = curTopY - pieceH;
 
-            Vector3 slotPos = new Vector3(_trayCenterX, group.slotY, 0f);
+            // 다음 조각의 맨 위 = 이 조각의 원점(맨 아래) - pieceGap
+            curTopY = group.slotY - pieceGap;
+
+            Vector3 slotPos = new Vector3(_pieceX, group.slotY, 0f);
 
             var go = new GameObject($"Piece_{pieceId}_{pieceData.pieceName}");
             go.transform.SetParent(transform, false);
@@ -142,6 +162,16 @@ public class PieceTray : MonoBehaviour
 
             _groups.Add(group);
         }
+
+        // 콘텐츠 높이
+        if (_groups.Count > 1)
+        {
+            float firstTop = _groups[0].slotY + _groups[0].pieceHeight;
+            float lastBottom = _groups[_groups.Count - 1].slotY;
+            _contentHeight = firstTop - lastBottom;
+        }
+        else
+            _contentHeight = 0f;
     }
 
     // ── 트레이 영역 ─────────────────────────────────────────
@@ -156,6 +186,7 @@ public class PieceTray : MonoBehaviour
         _trayMaxX = camHalfWidth - trayMarginRight;
         _trayMinX = _trayMaxX - trayWidth;
         _trayCenterX = (_trayMinX + _trayMaxX) * 0.5f;
+        _pieceX = _trayCenterX + pieceXOffset;
 
         _trayMaxY = camHalfHeight - trayTopMargin;
         _trayMinY = -camHalfHeight + trayBottomMargin;
@@ -335,7 +366,7 @@ public class PieceTray : MonoBehaviour
     {
         foreach (var group in _groups)
         {
-            Vector3 newPos = new Vector3(_trayCenterX, group.slotY + _scrollOffset, 0f);
+            Vector3 newPos = new Vector3(_pieceX, group.slotY + _scrollOffset, 0f);
 
             foreach (var piece in group.pieces)
                 piece.UpdateTrayPosition(newPos);
@@ -395,22 +426,28 @@ public class PieceTray : MonoBehaviour
     /// <summary>트레이에 남은 그룹만으로 슬롯 위치 재계산 (빈 슬롯 제거)</summary>
     private void RecalculateGroupPositions()
     {
-        float startY = _trayMaxY - spacing;
-        int visibleIndex = 0;
+        float curTopY = _trayMaxY - spacing;
+        float firstTop = curTopY;
+        float lastBottom = curTopY;
+        int visibleCount = 0;
 
         foreach (var group in _groups)
         {
             int remaining = GetTrayRemainingCount(group);
             if (remaining <= 0)
             {
-                // 트레이에 조각 없는 그룹 → 배지 숨김
                 if (group.countBadge != null)
                     group.countBadge.SetActive(false);
                 continue;
             }
 
-            group.slotY = startY - visibleIndex * spacing;
-            Vector3 newPos = new Vector3(_trayCenterX, group.slotY + _scrollOffset, 0f);
+            // 조각 원점 = 맨위 - 높이 (원점이 아래쪽)
+            group.slotY = curTopY - group.pieceHeight;
+            lastBottom = group.slotY;
+            // 다음 조각의 맨 위 = 이 조각 아래 - pieceGap
+            curTopY = group.slotY - pieceGap;
+
+            Vector3 newPos = new Vector3(_pieceX, group.slotY + _scrollOffset, 0f);
 
             foreach (var piece in group.pieces)
                 piece.UpdateTrayPosition(newPos);
@@ -418,10 +455,13 @@ public class PieceTray : MonoBehaviour
             if (group.countBadge != null)
                 UpdateBadgePosition(group, newPos);
 
-            visibleIndex++;
+            visibleCount++;
         }
 
-        _contentHeight = Mathf.Max(0, (visibleIndex - 1) * spacing);
+        if (visibleCount > 1)
+            _contentHeight = Mathf.Max(0, (firstTop) - lastBottom);
+        else
+            _contentHeight = 0f;
         ClampScroll();
     }
 
