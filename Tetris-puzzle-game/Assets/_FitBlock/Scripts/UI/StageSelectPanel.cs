@@ -18,6 +18,10 @@ public class StageSelectPanel : MonoBehaviour
     [SerializeField] private Sprite btnLockedSprite;
     [SerializeField] private Sprite checkMarkSprite;
 
+    [Header("숫자 스프라이트 (0~9)")]
+    [Tooltip("Hierarchical Challenge 폴더의 0.png~9.png를 순서대로 할당")]
+    [SerializeField] private Sprite[] digitSprites = new Sprite[10];
+
     // 버튼 크기 설정
     private const float BTN_SIZE = 160f;
     private const float BTN_GAP = 20f;
@@ -82,19 +86,27 @@ public class StageSelectPanel : MonoBehaviour
             var btn = btnGo.AddComponent<Button>();
             if (!unlocked) btn.interactable = false;
 
-            // 스테이지 번호 텍스트 (상단 배치)
-            var numGo = new GameObject("Num");
-            numGo.transform.SetParent(btnGo.transform, false);
-            var numRt = numGo.AddComponent<RectTransform>();
-            numRt.anchorMin = new Vector2(0f, 0.35f);
-            numRt.anchorMax = Vector2.one;
-            numRt.offsetMin = Vector2.zero;
-            numRt.offsetMax = Vector2.zero;
-            var numTmp = numGo.AddComponent<TextMeshProUGUI>();
-            numTmp.text = stage.stageNumber.ToString();
-            numTmp.fontSize = 42;
-            numTmp.alignment = TextAlignmentOptions.Center;
-            numTmp.color = Color.white;
+            // 스테이지 번호 (이미지 스프라이트)
+            if (digitSprites != null && digitSprites.Length >= 10 && digitSprites[0] != null)
+            {
+                CreateDigitDisplay(btnGo.transform, stage.stageNumber);
+            }
+            else
+            {
+                // 폴백: 텍스트
+                var numGo = new GameObject("Num");
+                numGo.transform.SetParent(btnGo.transform, false);
+                var numRt = numGo.AddComponent<RectTransform>();
+                numRt.anchorMin = new Vector2(0f, 0.35f);
+                numRt.anchorMax = Vector2.one;
+                numRt.offsetMin = Vector2.zero;
+                numRt.offsetMax = Vector2.zero;
+                var numTmp = numGo.AddComponent<TextMeshProUGUI>();
+                numTmp.text = stage.stageNumber.ToString();
+                numTmp.fontSize = 42;
+                numTmp.alignment = TextAlignmentOptions.Center;
+                numTmp.color = Color.white;
+            }
 
             // 클리어 체크 표시 (숫자 아래 중앙)
             if (cleared)
@@ -127,21 +139,7 @@ public class StageSelectPanel : MonoBehaviour
                 }
             }
 
-            // 잠금 아이콘 (텍스트)
-            if (!unlocked)
-            {
-                var lockGo = new GameObject("Lock");
-                lockGo.transform.SetParent(btnGo.transform, false);
-                var lockRt = lockGo.AddComponent<RectTransform>();
-                lockRt.anchorMin = Vector2.zero;
-                lockRt.anchorMax = Vector2.one;
-                lockRt.offsetMin = lockRt.offsetMax = Vector2.zero;
-                var lockTmp = lockGo.AddComponent<TextMeshProUGUI>();
-                lockTmp.text = "Lock";
-                lockTmp.fontSize = 24;
-                lockTmp.alignment = TextAlignmentOptions.Center;
-                lockTmp.color = new Color(1f, 1f, 1f, 0.8f);
-            }
+
 
             if (unlocked)
             {
@@ -156,6 +154,45 @@ public class StageSelectPanel : MonoBehaviour
         var containerRt = buttonContainer.GetComponent<RectTransform>();
         if (containerRt != null)
             containerRt.sizeDelta = new Vector2(containerRt.sizeDelta.x, totalHeight);
+    }
+
+    private void CreateDigitDisplay(Transform parent, int number)
+    {
+        string digits = number.ToString();
+        float digitW = digits.Length > 1 ? 32f : 40f;
+        float digitH = digits.Length > 1 ? 42f : 50f;
+        float gap = -2f;
+        float totalW = digits.Length * digitW + (digits.Length - 1) * gap;
+
+        // 숫자 컨테이너 (버튼 상단 영역에 중앙 배치)
+        var container = new GameObject("DigitContainer");
+        container.transform.SetParent(parent, false);
+        var containerRt = container.AddComponent<RectTransform>();
+        containerRt.anchorMin = new Vector2(0.5f, 0.5f);
+        containerRt.anchorMax = new Vector2(0.5f, 0.5f);
+        containerRt.pivot = new Vector2(0.5f, 0.5f);
+        containerRt.anchoredPosition = new Vector2(0f, 18f);
+        containerRt.sizeDelta = new Vector2(totalW, digitH);
+
+        float startX = -totalW / 2f + digitW / 2f;
+        for (int d = 0; d < digits.Length; d++)
+        {
+            int digitVal = digits[d] - '0';
+            if (digitVal < 0 || digitVal > 9 || digitSprites[digitVal] == null) continue;
+
+            var digitGo = new GameObject($"Digit_{d}");
+            digitGo.transform.SetParent(container.transform, false);
+            var drt = digitGo.AddComponent<RectTransform>();
+            drt.anchorMin = drt.anchorMax = new Vector2(0.5f, 0.5f);
+            drt.pivot = new Vector2(0.5f, 0.5f);
+            drt.sizeDelta = new Vector2(digitW, digitH);
+            drt.anchoredPosition = new Vector2(startX + d * (digitW + gap), 0f);
+
+            var digitImg = digitGo.AddComponent<Image>();
+            digitImg.sprite = digitSprites[digitVal];
+            digitImg.preserveAspect = true;
+            digitImg.raycastTarget = false;
+        }
     }
 
     private void OnStageClicked(StageData stage)

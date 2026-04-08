@@ -21,10 +21,12 @@ public static class SceneSetupTool
         // ── Chess Studio 스프라이트 로드 ──────────────────────
         string chessBase = "Assets/Chess Studio/Block Puzzle GUI Pack/png";
         ConfigureSlicedSprite($"{chessBase}/popup/Btn.png", new Vector4(28, 28, 28, 28));
+        ConfigureSlicedSprite($"{chessBase}/popup/Btn.w.png", new Vector4(28, 28, 28, 28));
         ConfigureSlicedSprite($"{chessBase}/popup/YellowBtn.png", new Vector4(28, 28, 28, 28));
         ConfigureSlicedSprite($"{chessBase}/Game/CardSlotBg.png", new Vector4(28, 28, 28, 28));
+        ConfigureSlicedSprite($"{chessBase}/popup/bg.png", new Vector4(40, 40, 40, 40));
 
-        var greenBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/Btn.png");
+        var greenBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/Btn.w.png");
         var yellowBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/YellowBtn.png");
         var grayBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Game/CardSlotBg.png");
         var checkMarkSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/CheckMark.png");
@@ -35,6 +37,8 @@ public static class SceneSetupTool
         var tabOffSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/TabOff.png");
         var bgmImgSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/BGMImg.png");
         var soundImgSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/SoundImg.png");
+        var popupBgSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/bg.png");
+        var settingsTitleSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/popup/SETTINGS.png");
 
         // ── 기존 오브젝트 정리 ──────────────────────────────
         var oldNames = new[] { "GameManager", "UI_Canvas" };
@@ -67,16 +71,7 @@ public static class SceneSetupTool
             var bgSr = bgObj.AddComponent<SpriteRenderer>();
             bgSr.sprite = bgSprite;
             bgSr.sortingOrder = -100;
-
-            // 카메라 영역에 맞게 스케일 조정
-            float camHeight = mainCam.orthographicSize * 2f;
-            float camWidth = camHeight * mainCam.aspect;
-            float spriteW = bgSprite.bounds.size.x;
-            float spriteH = bgSprite.bounds.size.y;
-            float scaleX = camWidth / spriteW;
-            float scaleY = camHeight / spriteH;
-            float scale = Mathf.Max(scaleX, scaleY);
-            bgObj.transform.localScale = new Vector3(scale, scale, 1f);
+            bgObj.AddComponent<BackgroundScaler>();
             bgObj.transform.position = new Vector3(0, 0, 10f);
         }
 
@@ -137,6 +132,8 @@ public static class SceneSetupTool
         gamePanelRt.anchorMin = Vector2.zero;
         gamePanelRt.anchorMax = Vector2.one;
         gamePanelRt.offsetMin = gamePanelRt.offsetMax = Vector2.zero;
+
+
 
         // ── HUD (상단) ────────────────────────────────────
         var hud = CreateUIPanel(gamePanel.transform, "HUD",
@@ -270,7 +267,7 @@ public static class SceneSetupTool
         ssTitleRt.anchorMin = new Vector2(0.5f, 1); ssTitleRt.anchorMax = new Vector2(0.5f, 1);
         ssTitleRt.pivot = new Vector2(0.5f, 1);
         ssTitleRt.sizeDelta = new Vector2(400, 140);
-        ssTitleRt.anchoredPosition = Vector2.zero;
+        ssTitleRt.anchoredPosition = new Vector2(0, -15);
         var ssTitleImg = ssTitleGo.AddComponent<Image>();
         ssTitleImg.sprite = flagSprite;
         ssTitleImg.preserveAspect = true;
@@ -325,6 +322,14 @@ public static class SceneSetupTool
         ssSer.FindProperty("btnUnlockedSprite").objectReferenceValue = greenBtnSprite;
         ssSer.FindProperty("btnLockedSprite").objectReferenceValue = grayBtnSprite;
         ssSer.FindProperty("checkMarkSprite").objectReferenceValue = checkMarkSprite;
+        // 숫자 스프라이트 (0~9) 자동 할당
+        var digitProp = ssSer.FindProperty("digitSprites");
+        digitProp.arraySize = 10;
+        for (int d = 0; d < 10; d++)
+        {
+            var digitSpr = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Hierarchical Challenge/{d}.png");
+            digitProp.GetArrayElementAtIndex(d).objectReferenceValue = digitSpr;
+        }
         ssSer.ApplyModifiedProperties();
 
         // ── 설정 패널 ────────────────────────────────────
@@ -338,12 +343,34 @@ public static class SceneSetupTool
             new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
             new Vector2(700, 800), Vector2.zero);
         var settingsBoxImg = settingsBox.AddComponent<Image>();
-        settingsBoxImg.color = new Color(1f, 1f, 1f, 0.97f);
+        if (popupBgSprite != null)
+        {
+            settingsBoxImg.sprite = popupBgSprite;
+            settingsBoxImg.type = Image.Type.Sliced;
+            settingsBoxImg.color = Color.white;
+        }
+        else
+        {
+            settingsBoxImg.color = new Color(1f, 1f, 1f, 0.97f);
+        }
 
-        // 설정 타이틀
-        var setTitle = CreateText(settingsBox.transform, "SettingsTitle", "SETTINGS",
-            new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1),
-            new Vector2(0, -60), new Vector2(500, 80), 54);
+        // 설정 타이틀 (이미지)
+        var setTitleGo = new GameObject("SettingsTitle");
+        setTitleGo.transform.SetParent(settingsBox.transform, false);
+        var setTitleRt = setTitleGo.AddComponent<RectTransform>();
+        setTitleRt.anchorMin = new Vector2(0.5f, 1);
+        setTitleRt.anchorMax = new Vector2(0.5f, 1);
+        setTitleRt.pivot = new Vector2(0.5f, 1);
+        setTitleRt.anchoredPosition = new Vector2(0.7f, -30.8f);
+        setTitleRt.sizeDelta = new Vector2(363.49f, 59.52f);
+        var setTitleImg = setTitleGo.AddComponent<Image>();
+        if (settingsTitleSprite != null)
+        {
+            setTitleImg.sprite = settingsTitleSprite;
+            setTitleImg.preserveAspect = true;
+            setTitleImg.raycastTarget = false;
+            setTitleImg.color = Color.white;
+        }
 
         // 닫기 버튼 (X)
         var closeBtn = CreateIconButton(settingsBox.transform, "CloseButton", xSprite);
@@ -357,29 +384,25 @@ public static class SceneSetupTool
             new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1),
             new Vector2(0, -200), new Vector2(500, 70));
 
-        // SFX 토글
-        var sfxToggle = CreateToggle(settingsBox.transform, "SFXToggle", "SFX", tabOnSprite, tabOffSprite, soundImgSprite);
+        // SOUND 토글
+        var sfxToggle = CreateToggle(settingsBox.transform, "SFXToggle", "SOUND", tabOnSprite, tabOffSprite, soundImgSprite);
         SetRectTransform(sfxToggle.GetComponent<RectTransform>(),
             new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1),
             new Vector2(0, -300), new Vector2(500, 70));
 
-        // 진동 토글
-        var vibToggle = CreateToggle(settingsBox.transform, "VibrationToggle", "Vibration", tabOnSprite, tabOffSprite, null);
-        SetRectTransform(vibToggle.GetComponent<RectTransform>(),
-            new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1),
-            new Vector2(0, -400), new Vector2(500, 70));
 
         // 버전 텍스트
         var versionTxt = CreateText(settingsBox.transform, "VersionText", "v1.0",
             new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0),
             new Vector2(0, 30), new Vector2(300, 40), 24);
+        versionTxt.color = new Color(1f, 1f, 1f, 0.6f);
 
         // SettingsPanel 컴포넌트 연결
         var settingsComp = settingsBg.AddComponent<SettingsPanel>();
         var spSer = new SerializedObject(settingsComp);
         spSer.FindProperty("bgmToggle").objectReferenceValue = bgmToggle.GetComponent<Toggle>();
         spSer.FindProperty("sfxToggle").objectReferenceValue = sfxToggle.GetComponent<Toggle>();
-        spSer.FindProperty("vibrationToggle").objectReferenceValue = vibToggle.GetComponent<Toggle>();
+        spSer.FindProperty("vibrationToggle").objectReferenceValue = null;
         spSer.FindProperty("closeButton").objectReferenceValue = closeBtn.GetComponent<Button>();
         spSer.FindProperty("versionText").objectReferenceValue = versionTxt;
         spSer.ApplyModifiedProperties();
@@ -474,7 +497,8 @@ public static class SceneSetupTool
         if (btnSprite != null)
         {
             img.sprite = btnSprite;
-            img.type = Image.Type.Sliced;
+            img.type = Image.Type.Simple;
+            img.preserveAspect = true;
             img.color = Color.white;
         }
         else
@@ -499,9 +523,12 @@ public static class SceneSetupTool
 
         var tmp = textGo.AddComponent<TextMeshProUGUI>();
         tmp.text = label;
-        tmp.fontSize = 26;
+        tmp.fontSize = 28;
+        tmp.fontStyle = FontStyles.Bold;
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.color = Color.white;
+        tmp.outlineWidth = 0.25f;
+        tmp.outlineColor = new Color32(30, 60, 30, 255);
 
         return go;
     }
@@ -572,7 +599,7 @@ public static class SceneSetupTool
             iconImg.sprite = iconSprite;
             iconImg.preserveAspect = true;
             iconImg.raycastTarget = false;
-            iconImg.color = new Color(0.3f, 0.3f, 0.3f);
+            iconImg.color = Color.white;
             labelLeft = 60;
         }
 
@@ -588,10 +615,10 @@ public static class SceneSetupTool
         labelTmp.text = label;
         labelTmp.fontSize = 36;
         labelTmp.alignment = TextAlignmentOptions.MidlineLeft;
-        labelTmp.color = new Color(0.2f, 0.2f, 0.2f);
+        labelTmp.color = Color.white;
         labelTmp.raycastTarget = false;
 
-        // TabOff 배경 (오른쪽) — 180도 회전으로 노브 왼쪽
+        // TabOff 배경 (오른쪽)
         var bgGo = new GameObject("Background");
         bgGo.transform.SetParent(go.transform, false);
         var bgRt = bgGo.AddComponent<RectTransform>();
@@ -600,7 +627,6 @@ public static class SceneSetupTool
         bgRt.pivot = new Vector2(0.5f, 0.5f);
         bgRt.anchoredPosition = new Vector2(-60, 0);
         bgRt.sizeDelta = new Vector2(120, 60);
-        bgRt.localRotation = Quaternion.Euler(0, 0, 180);
         var bgImg = bgGo.AddComponent<Image>();
         if (offSprite != null)
         {
