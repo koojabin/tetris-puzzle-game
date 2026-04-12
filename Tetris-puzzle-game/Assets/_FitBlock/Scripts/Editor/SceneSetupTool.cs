@@ -60,19 +60,42 @@ public static class SceneSetupTool
                 mainCam.gameObject.AddComponent<UnityEngine.EventSystems.Physics2DRaycaster>();
         }
 
-        // ── 배경 스프라이트 ─────────────────────────────────
+        // ── 배경 (별도 Canvas, 보드/트레이 뒤에 배치) ────────
         var oldBg = GameObject.Find("GameBackground");
         if (oldBg != null) Object.DestroyImmediate(oldBg);
+        var oldBgCanvas = GameObject.Find("BG_Canvas");
+        if (oldBgCanvas != null) Object.DestroyImmediate(oldBgCanvas);
 
         var bgSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Main/bg.png");
-        if (bgSprite != null && mainCam != null)
         {
-            var bgObj = new GameObject("GameBackground");
-            var bgSr = bgObj.AddComponent<SpriteRenderer>();
-            bgSr.sprite = bgSprite;
-            bgSr.sortingOrder = -100;
-            bgObj.AddComponent<BackgroundScaler>();
-            bgObj.transform.position = new Vector3(0, 0, 10f);
+            var bgCanvasGo = new GameObject("BG_Canvas");
+            var bgCanvas = bgCanvasGo.AddComponent<Canvas>();
+            bgCanvas.renderMode = RenderMode.ScreenSpaceCamera;
+            bgCanvas.worldCamera = mainCam;
+            bgCanvas.planeDistance = 100f;
+            bgCanvas.sortingOrder = -10;
+            var bgScaler = bgCanvasGo.AddComponent<CanvasScaler>();
+            bgScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            bgScaler.referenceResolution = new Vector2(1080, 1920);
+            bgScaler.matchWidthOrHeight = 0.5f;
+
+            var bgPanel = new GameObject("GameBackground");
+            bgPanel.transform.SetParent(bgCanvasGo.transform, false);
+            var bgRt = bgPanel.AddComponent<RectTransform>();
+            bgRt.anchorMin = Vector2.zero;
+            bgRt.anchorMax = Vector2.one;
+            bgRt.offsetMin = bgRt.offsetMax = Vector2.zero;
+            var bgImg = bgPanel.AddComponent<Image>();
+            if (bgSprite != null)
+            {
+                bgImg.sprite = bgSprite;
+                bgImg.type = Image.Type.Simple;
+                bgImg.preserveAspect = false;
+            }
+            else
+            {
+                bgImg.color = new Color(0.08f, 0.1f, 0.18f);
+            }
         }
 
         // ── GameManager ───────────────────────────────────
@@ -138,7 +161,7 @@ public static class SceneSetupTool
         // ── HUD (상단) ────────────────────────────────────
         var hud = CreateUIPanel(gamePanel.transform, "HUD",
             new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1),
-            new Vector2(0, 120), new Vector2(0, 0));
+            new Vector2(0, 160), new Vector2(0, 0));
 
         // 메뉴 버튼 (왼쪽) — Back 아이콘
         var menuBtn = CreateIconButton(hud.transform, "MenuButton", backSprite);
@@ -152,10 +175,44 @@ public static class SceneSetupTool
             new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(1, 0.5f),
             new Vector2(-60, 0), new Vector2(80, 80));
 
-        // 스테이지 텍스트 (중앙)
-        var stageText = CreateText(hud.transform, "StageNumberText", "STAGE 1",
-            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-            new Vector2(0, 0), new Vector2(300, 80), 48);
+        // 스테이지 표시 (중앙) — Level 이미지 + 숫자 스프라이트
+        var levelSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Hierarchical Challenge/Level.png");
+
+        var stageContainer = new GameObject("StageDisplay");
+        stageContainer.transform.SetParent(hud.transform, false);
+        var stageContRt = stageContainer.AddComponent<RectTransform>();
+        stageContRt.anchorMin = new Vector2(0.5f, 0.5f);
+        stageContRt.anchorMax = new Vector2(0.5f, 0.5f);
+        stageContRt.pivot = new Vector2(0.5f, 0.5f);
+        stageContRt.sizeDelta = new Vector2(300, 150);
+        stageContRt.anchoredPosition = Vector2.zero;
+        var stageLayout = stageContainer.AddComponent<HorizontalLayoutGroup>();
+        stageLayout.spacing = 10;
+        stageLayout.childAlignment = TextAnchor.MiddleCenter;
+        stageLayout.childForceExpandWidth = false;
+        stageLayout.childForceExpandHeight = false;
+        stageLayout.childControlWidth = true;
+        stageLayout.childControlHeight = true;
+
+        // "Level" 이미지
+        var levelGo = new GameObject("LevelImage");
+        levelGo.transform.SetParent(stageContainer.transform, false);
+        var levelImg = levelGo.AddComponent<Image>();
+        levelImg.sprite = levelSprite;
+        levelImg.preserveAspect = true;
+        levelImg.raycastTarget = false;
+        var levelLE = levelGo.AddComponent<LayoutElement>();
+        levelLE.preferredWidth = 135;
+        levelLE.preferredHeight = 143;
+
+        // 숫자 컨테이너
+        var digitContainer = new GameObject("DigitContainer");
+        digitContainer.transform.SetParent(stageContainer.transform, false);
+        var digitContRt = digitContainer.AddComponent<RectTransform>();
+        digitContRt.sizeDelta = new Vector2(100, 52);
+        var digitLE = digitContainer.AddComponent<LayoutElement>();
+        digitLE.preferredWidth = 100;
+        digitLE.preferredHeight = 52;
 
         // ── 하단 버튼 ─────────────────────────────────────
         var bottomBar = CreateUIPanel(gamePanel.transform, "BottomBar",
@@ -409,7 +466,16 @@ public static class SceneSetupTool
 
         // ── GameUIManager 연결 ────────────────────────────
         var uiSer = new SerializedObject(uiManager);
-        uiSer.FindProperty("stageNumberText").objectReferenceValue = stageText;
+        uiSer.FindProperty("stageLevelImage").objectReferenceValue = levelImg;
+        uiSer.FindProperty("stageDigitContainer").objectReferenceValue = digitContRt;
+        // 숫자 스프라이트 (0~9) 할당
+        var uiDigitProp = uiSer.FindProperty("digitSprites");
+        uiDigitProp.arraySize = 10;
+        for (int d = 0; d < 10; d++)
+        {
+            var digit = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Hierarchical Challenge/{d}.png");
+            uiDigitProp.GetArrayElementAtIndex(d).objectReferenceValue = digit;
+        }
         uiSer.FindProperty("menuButton").objectReferenceValue = menuBtn.GetComponent<Button>();
         uiSer.FindProperty("rotateButton").objectReferenceValue = rotateBtn.GetComponent<Button>();
         uiSer.FindProperty("flipButton").objectReferenceValue = flipBtn.GetComponent<Button>();

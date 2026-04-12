@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-
 /// <summary>
 /// 게임 화면 UI 전체 관리.
 /// HUD (스테이지 번호, 클리어 체크), 게임 버튼, 스테이지 선택 패널 전환 담당.
@@ -11,7 +9,9 @@ public class GameUIManager : MonoBehaviour
     public static GameUIManager Instance { get; private set; }
 
     [Header("HUD")]
-    [SerializeField] private TextMeshProUGUI stageNumberText;
+    [SerializeField] private Image stageLevelImage;
+    [SerializeField] private RectTransform stageDigitContainer;
+    [SerializeField] private Sprite[] digitSprites = new Sprite[10];
 
     [Header("버튼")]
     [SerializeField] private Button undoButton;
@@ -95,8 +95,40 @@ public class GameUIManager : MonoBehaviour
         if (StageManager.Instance?.CurrentStage == null) return;
 
         int stageNum = StageManager.Instance.CurrentStage.stageNumber;
-        if (stageNumberText != null)
-            stageNumberText.text = $"STAGE {stageNum}";
+        UpdateStageDigits(stageNum);
+    }
+
+    private void UpdateStageDigits(int number)
+    {
+        if (stageDigitContainer == null || digitSprites == null || digitSprites.Length < 10) return;
+
+        // 기존 숫자 제거
+        for (int i = stageDigitContainer.childCount - 1; i >= 0; i--)
+            Destroy(stageDigitContainer.GetChild(i).gameObject);
+
+        string digits = number.ToString();
+        float digitW = 36f;
+        float digitH = 52f;
+        float gap = 4f;
+        float totalW = digits.Length * digitW + (digits.Length - 1) * gap;
+        float startX = -totalW / 2f + digitW / 2f;
+
+        for (int d = 0; d < digits.Length; d++)
+        {
+            int val = digits[d] - '0';
+            if (val < 0 || val > 9 || digitSprites[val] == null) continue;
+
+            var go = new GameObject($"Digit_{d}");
+            go.transform.SetParent(stageDigitContainer, false);
+            var rt = go.AddComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(digitW, digitH);
+            rt.anchoredPosition = new Vector2(startX + d * (digitW + gap), 0f);
+
+            var img = go.AddComponent<Image>();
+            img.sprite = digitSprites[val];
+            img.preserveAspect = true;
+            img.raycastTarget = false;
+        }
     }
 
     // ── 버튼 콜백 ─────────────────────────────────────────
