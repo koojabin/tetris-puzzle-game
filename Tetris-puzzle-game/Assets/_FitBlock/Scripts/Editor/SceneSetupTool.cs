@@ -241,17 +241,53 @@ public static class SceneSetupTool
             new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
             new Vector2(700, 900), Vector2.zero);
         var panelImg = popupPanel.AddComponent<Image>();
-        panelImg.color = new Color(1f, 1f, 1f, 0.97f);
+        if (popupBgSprite != null)
+        {
+            panelImg.sprite = popupBgSprite;
+            panelImg.type = Image.Type.Sliced;
+            panelImg.color = Color.white;
+        }
+        else
+        {
+            panelImg.color = new Color(1f, 1f, 1f, 0.97f);
+        }
 
-        var titleTxt = CreateText(popupPanel.transform, "TitleText", "Clear!",
-            new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1),
-            new Vector2(0, -80), new Vector2(600, 100), 72);
+        // 스테이지 표시 (Level 이미지 + 숫자 스프라이트) — 인게임과 동일
+        var popupStageContainer = new GameObject("StageDisplay");
+        popupStageContainer.transform.SetParent(popupPanel.transform, false);
+        var popupStageRt = popupStageContainer.AddComponent<RectTransform>();
+        popupStageRt.anchorMin = new Vector2(0.5f, 1f);
+        popupStageRt.anchorMax = new Vector2(0.5f, 1f);
+        popupStageRt.pivot = new Vector2(0.5f, 1f);
+        popupStageRt.anchoredPosition = new Vector2(0, -60);
+        popupStageRt.sizeDelta = new Vector2(300, 150);
+        var popupStageLayout = popupStageContainer.AddComponent<HorizontalLayoutGroup>();
+        popupStageLayout.spacing = 10;
+        popupStageLayout.childAlignment = TextAnchor.MiddleCenter;
+        popupStageLayout.childForceExpandWidth = false;
+        popupStageLayout.childForceExpandHeight = false;
+        popupStageLayout.childControlWidth = true;
+        popupStageLayout.childControlHeight = true;
 
-        var stageTxt = CreateText(popupPanel.transform, "StageText", "Stage 1",
-            new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1),
-            new Vector2(0, -180), new Vector2(400, 60), 36);
+        // "Level" 이미지
+        var popupLevelSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Hierarchical Challenge/Level.png");
+        var popupLevelGo = new GameObject("LevelImage");
+        popupLevelGo.transform.SetParent(popupStageContainer.transform, false);
+        var popupLevelImg = popupLevelGo.AddComponent<Image>();
+        popupLevelImg.sprite = popupLevelSprite;
+        popupLevelImg.preserveAspect = true;
+        popupLevelImg.raycastTarget = false;
+        var popupLevelLE = popupLevelGo.AddComponent<LayoutElement>();
+        popupLevelLE.preferredWidth = 135;
+        popupLevelLE.preferredHeight = 143;
 
-        // 팝업 체크 아이콘
+        // 숫자 컨테이너
+        var stageDigitGo = new GameObject("StageDigitContainer");
+        stageDigitGo.transform.SetParent(popupStageContainer.transform, false);
+        var stageDigitRt = stageDigitGo.AddComponent<RectTransform>();
+        stageDigitRt.sizeDelta = new Vector2(100, 52);
+
+        // 체크 아이콘
         var popupCheckGo = new GameObject("PopupCheckIcon");
         popupCheckGo.transform.SetParent(popupPanel.transform, false);
         var popupCheckRt = popupCheckGo.AddComponent<RectTransform>();
@@ -259,43 +295,52 @@ public static class SceneSetupTool
         popupCheckRt.anchorMax = new Vector2(0.5f, 0.5f);
         popupCheckRt.pivot = new Vector2(0.5f, 0.5f);
         popupCheckRt.anchoredPosition = new Vector2(0, 80);
-        popupCheckRt.sizeDelta = new Vector2(100, 100);
+        popupCheckRt.sizeDelta = new Vector2(120, 120);
         var popupCheckImg = popupCheckGo.AddComponent<Image>();
+        popupCheckImg.raycastTarget = false;
         if (checkMarkSprite != null)
         {
             popupCheckImg.sprite = checkMarkSprite;
-            popupCheckImg.color = Color.white;
             popupCheckImg.preserveAspect = true;
-        }
-        else
-        {
-            popupCheckImg.color = new Color(0.7f, 0.7f, 0.7f);
+            popupCheckImg.color = Color.white;
         }
 
+        // 다음 스테이지 버튼
         var nextBtn = CreateButton(popupPanel.transform, "NextStageButton", "Next Stage", yellowBtnSprite);
         SetRectTransform(nextBtn.GetComponent<RectTransform>(),
             new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0),
             new Vector2(0, 260), new Vector2(500, 90));
 
+        // 리플레이 버튼
         var replayBtn = CreateButton(popupPanel.transform, "ReplayButton", "Replay", greenBtnSprite);
         SetRectTransform(replayBtn.GetComponent<RectTransform>(),
             new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0),
             new Vector2(0, 160), new Vector2(500, 90));
+        var replayBtnComp = replayBtn.GetComponent<Button>();
 
+        // 스테이지 선택 버튼
         var selectBtn = CreateButton(popupPanel.transform, "SelectStageButton", "Stage Select", grayBtnSprite);
         SetRectTransform(selectBtn.GetComponent<RectTransform>(),
             new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0),
             new Vector2(0, 60), new Vector2(500, 90));
+        var selectBtnComp = selectBtn.GetComponent<Button>();
 
         // ClearPopup 컴포넌트 연결
         var clearPopup = popupBg.AddComponent<ClearPopup>();
         var cpSer = new SerializedObject(clearPopup);
-        cpSer.FindProperty("titleText").objectReferenceValue = titleTxt;
-        cpSer.FindProperty("stageText").objectReferenceValue = stageTxt;
-        cpSer.FindProperty("nextStageButton").objectReferenceValue = nextBtn.GetComponent<Button>();
-        cpSer.FindProperty("replayButton").objectReferenceValue = replayBtn.GetComponent<Button>();
-        cpSer.FindProperty("selectStageButton").objectReferenceValue = selectBtn.GetComponent<Button>();
+        cpSer.FindProperty("stageDigitContainer").objectReferenceValue = stageDigitRt;
+        // 숫자 스프라이트 (0~9) 할당
+        var cpDigitProp = cpSer.FindProperty("digitSprites");
+        cpDigitProp.arraySize = 10;
+        for (int d = 0; d < 10; d++)
+        {
+            var dSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{chessBase}/Hierarchical Challenge/{d}.png");
+            cpDigitProp.GetArrayElementAtIndex(d).objectReferenceValue = dSprite;
+        }
         cpSer.FindProperty("checkImage").objectReferenceValue = popupCheckImg;
+        cpSer.FindProperty("nextStageButton").objectReferenceValue = nextBtn.GetComponent<Button>();
+        cpSer.FindProperty("replayButton").objectReferenceValue = replayBtnComp;
+        cpSer.FindProperty("selectStageButton").objectReferenceValue = selectBtnComp;
         cpSer.ApplyModifiedProperties();
 
         // ── StageSelect 패널 ──────────────────────────────
@@ -563,8 +608,7 @@ public static class SceneSetupTool
         if (btnSprite != null)
         {
             img.sprite = btnSprite;
-            img.type = Image.Type.Simple;
-            img.preserveAspect = true;
+            img.type = Image.Type.Sliced;
             img.color = Color.white;
         }
         else

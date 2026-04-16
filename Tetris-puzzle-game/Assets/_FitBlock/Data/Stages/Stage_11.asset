@@ -20,5 +20,5 @@ MonoBehaviour:
   pieceCount: 5
   pieces: []
   allowFlip: 1
-  isValidated: 0
+  isValidated: 1
   solutionCount: 0
