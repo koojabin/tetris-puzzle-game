@@ -259,7 +259,7 @@ public static class SceneSetupTool
         popupStageRt.anchorMin = new Vector2(0.5f, 1f);
         popupStageRt.anchorMax = new Vector2(0.5f, 1f);
         popupStageRt.pivot = new Vector2(0.5f, 1f);
-        popupStageRt.anchoredPosition = new Vector2(0, -60);
+        popupStageRt.anchoredPosition = new Vector2(-43.2f, 14.37f);
         popupStageRt.sizeDelta = new Vector2(300, 150);
         var popupStageLayout = popupStageContainer.AddComponent<HorizontalLayoutGroup>();
         popupStageLayout.spacing = 10;

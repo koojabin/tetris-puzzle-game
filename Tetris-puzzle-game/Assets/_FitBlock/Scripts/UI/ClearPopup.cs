@@ -63,7 +63,7 @@ public class ClearPopup : MonoBehaviour
         float digitW = 50f;
         float gap = 5f;
         float totalW = digits.Length * digitW + (digits.Length - 1) * gap;
-        float startX = -totalW / 2f + digitW / 2f;
+        float startX = -totalW / 2f + digitW / 2f + 40f;
 
         for (int d = 0; d < digits.Length; d++)
         {

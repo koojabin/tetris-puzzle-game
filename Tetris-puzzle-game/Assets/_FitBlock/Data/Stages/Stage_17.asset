@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8be443eabf4e714996da2a62a40255f, type: 3}
-  m_Name: Stage_11
+  m_Name: Stage_17
   m_EditorClassIdentifier: FitBlock.Core::StageData
-  stageNumber: 11
+  stageNumber: 17
   boardWidth: 5
-  boardHeight: 4
-  boardCells: 0101010101010101010101010101010101010101
+  boardHeight: 5
+  boardCells: 01010101010101010101010101010101010101010101010101
   allowedPieces:
   - {fileID: 11400000, guid: ee1816ac8a2874e4f85bbc840e530c9a, type: 2}
   - {fileID: 11400000, guid: 008f8fd890022824d9217888a27bd22b, type: 2}
@@ -25,7 +25,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ca674bb99f9a98148b0971cccd3fa78f, type: 2}
   - {fileID: 11400000, guid: 4c6545a0ddc12ea4a8d5f423e237870a, type: 2}
   - {fileID: 11400000, guid: fdb64f3c753a0c5459817c28a134d5fd, type: 2}
-  pieceCount: 4
+  pieceCount: 5
   pieces: []
   allowFlip: 1
   isValidated: 1

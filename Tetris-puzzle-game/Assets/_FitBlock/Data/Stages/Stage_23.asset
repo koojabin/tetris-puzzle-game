@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8be443eabf4e714996da2a62a40255f, type: 3}
+  m_Name: Stage_23
+  m_EditorClassIdentifier: FitBlock.Core::StageData
+  stageNumber: 23
+  boardWidth: 6
+  boardHeight: 5
+  boardCells: 010101010101010101010101010101010101010101010101010101010101
+  allowedPieces:
+  - {fileID: 11400000, guid: 12e10e0bc7ef8fe4098a9afb3f491b73, type: 2}
+  - {fileID: 11400000, guid: d15ff664086b9b143a334fc15fc7898b, type: 2}
+  - {fileID: 11400000, guid: 70af98223eb888a42b3fd5f0bd379603, type: 2}
+  - {fileID: 11400000, guid: b7ef55fa8a809094c91ea50b20fd2dcb, type: 2}
+  - {fileID: 11400000, guid: d51b14cb47a08354086767d1f75a4293, type: 2}
+  - {fileID: 11400000, guid: c743debaf89e89f40a713c857dacb6e6, type: 2}
+  - {fileID: 11400000, guid: 8ff36cb71131e784e9a1b31b80727209, type: 2}
+  - {fileID: 11400000, guid: bd12bda956fbda947a470db7b26bdbef, type: 2}
+  - {fileID: 11400000, guid: ee1816ac8a2874e4f85bbc840e530c9a, type: 2}
+  - {fileID: 11400000, guid: 008f8fd890022824d9217888a27bd22b, type: 2}
+  - {fileID: 11400000, guid: 182253bebbfd92f49836c1efa9930224, type: 2}
+  - {fileID: 11400000, guid: 18fa93c1aabec5c4580bc558386880b3, type: 2}
+  - {fileID: 11400000, guid: 47eead547440820458f0866d64f7c3bd, type: 2}
+  - {fileID: 11400000, guid: ca674bb99f9a98148b0971cccd3fa78f, type: 2}
+  - {fileID: 11400000, guid: 4c6545a0ddc12ea4a8d5f423e237870a, type: 2}
+  - {fileID: 11400000, guid: fdb64f3c753a0c5459817c28a134d5fd, type: 2}
+  - {fileID: 11400000, guid: 82b6b5f76f03a4145a54741f7e1b6a4d, type: 2}
+  - {fileID: 11400000, guid: 24142db6c11705847bdddee08f40daad, type: 2}
+  - {fileID: 11400000, guid: e32ef0b813b11a54b9b26c00199a557d, type: 2}
+  - {fileID: 11400000, guid: 2153e9e6fb4e7ed49bd450d53d4705f7, type: 2}
+  - {fileID: 11400000, guid: 8a4a522b0df38184cb7f7aafce7ef097, type: 2}
+  - {fileID: 11400000, guid: 62483837ba0d6f84d9ca7a47d1575659, type: 2}
+  - {fileID: 11400000, guid: 36f33fd766eef7e42a0943a28d4db922, type: 2}
+  - {fileID: 11400000, guid: cb3ea77417fa06147b1659a9f2a126bb, type: 2}
+  pieceCount: 6
+  pieces: []
+  allowFlip: 1
+  isValidated: 1
+  solutionCount: 11

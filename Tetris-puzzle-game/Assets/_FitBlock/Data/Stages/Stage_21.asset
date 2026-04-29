@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8be443eabf4e714996da2a62a40255f, type: 3}
+  m_Name: Stage_21
+  m_EditorClassIdentifier: FitBlock.Core::StageData
+  stageNumber: 21
+  boardWidth: 6
+  boardHeight: 5
+  boardCells: 010101010101010101010101010101010101010101010101010101010101
+  allowedPieces:
+  - {fileID: 11400000, guid: 82b6b5f76f03a4145a54741f7e1b6a4d, type: 2}
+  - {fileID: 11400000, guid: 24142db6c11705847bdddee08f40daad, type: 2}
+  - {fileID: 11400000, guid: e32ef0b813b11a54b9b26c00199a557d, type: 2}
+  - {fileID: 11400000, guid: 2153e9e6fb4e7ed49bd450d53d4705f7, type: 2}
+  - {fileID: 11400000, guid: 8a4a522b0df38184cb7f7aafce7ef097, type: 2}
+  - {fileID: 11400000, guid: 62483837ba0d6f84d9ca7a47d1575659, type: 2}
+  - {fileID: 11400000, guid: 36f33fd766eef7e42a0943a28d4db922, type: 2}
+  - {fileID: 11400000, guid: cb3ea77417fa06147b1659a9f2a126bb, type: 2}
+  pieceCount: 5
+  pieces: []
+  allowFlip: 1
+  isValidated: 1
+  solutionCount: 1
