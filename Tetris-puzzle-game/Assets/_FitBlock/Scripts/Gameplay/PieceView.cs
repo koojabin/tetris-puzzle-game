@@ -132,16 +132,7 @@ public class PieceView : MonoBehaviour,
             {
                 PieceTray.Instance.ReturnPieceToGroup(this);
             }
-            else if (_wasPreviouslyPlaced)
-            {
-                // 원래 그리드 위치로 복귀 시도
-                bool restored = StageManager.Instance.TryRestorePiece(this, _previousGridPos);
-                if (!restored)
-                {
-                    transform.position = _previousWorldPos;
-                }
-            }
-            // 트레이에서 온 조각은 놓은 자리에 그대로
+            // 그리드 밖에 놓은 경우 → 놓은 자리에 그대로 둠
         }
 
         // 트레이에 상태 변화 알림

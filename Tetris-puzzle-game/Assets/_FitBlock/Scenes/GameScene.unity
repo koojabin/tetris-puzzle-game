@@ -6226,6 +6226,7 @@ MonoBehaviour:
   btnUnlockedSprite: {fileID: 21300000, guid: 8b135a13788909b4eb78a92c3cf4b441, type: 3}
   btnLockedSprite: {fileID: 21300000, guid: de139eb03a091274297ef06201f4d367, type: 3}
   checkMarkSprite: {fileID: 21300000, guid: df3f59968ff80ee46abd2fd80c53fcdd, type: 3}
+  arrowSprite: {fileID: 21300000, guid: bbe8caaf775f0d2499bf621d7408a1fe, type: 3}
   digitSprites:
   - {fileID: 21300000, guid: 0d37acfa58e453647a844e8c71f4cbae, type: 3}
   - {fileID: 21300000, guid: c9bda0326a8cdd44e81ff0575613b801, type: 3}

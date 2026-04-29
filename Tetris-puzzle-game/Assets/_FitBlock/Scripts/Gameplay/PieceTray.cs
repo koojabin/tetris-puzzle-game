@@ -441,6 +441,21 @@ public class PieceTray : MonoBehaviour
                 continue;
             }
 
+            // 회전된 현재 셀 기준으로 높이 재계산
+            var visiblePiece = group.pieces.Find(p => p.IsInTray && !p.IsPlaced);
+            if (visiblePiece != null)
+            {
+                var cells = visiblePiece.GetCurrentCells();
+                int maxCellY = 0;
+                foreach (var c in cells)
+                    if (c.y > maxCellY) maxCellY = c.y;
+
+                float cs = 1f;
+                if (StageManager.Instance != null && StageManager.Instance.Board != null)
+                    cs = StageManager.Instance.Board.CellSize;
+                group.pieceHeight = (maxCellY + 1) * cs * trayPieceScale;
+            }
+
             // 조각 원점 = 맨위 - 높이 (원점이 아래쪽)
             group.slotY = curTopY - group.pieceHeight;
             lastBottom = group.slotY;
